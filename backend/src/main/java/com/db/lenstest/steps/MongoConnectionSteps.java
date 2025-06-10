@@ -45,10 +45,10 @@ public class MongoConnectionSteps {
 //        if(id.equals("test-1")){
 //            Thread.sleep(15000);
 //        } else if(id.equals("test-2")){
-//            Thread.sleep(30000);
+//            Thread.sleep(45000);
 //        }
-        throw new RuntimeException("aaa");
-//        assertEquals(expectedCount,count);
+//        throw new RuntimeException("aaa");
+        assertEquals(expectedCount,count);
     }
 
     @And("I should be able to delete the document with id {string}")

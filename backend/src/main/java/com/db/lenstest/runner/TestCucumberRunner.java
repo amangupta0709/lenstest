@@ -10,7 +10,7 @@ import org.testng.annotations.DataProvider;
         plugin = {
                 "pretty",
                 "com.db.lenstest.listener.ExtentCucumberListener",
-                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+//                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
         }
 )
 public class TestCucumberRunner extends AbstractTestNGCucumberTests {
