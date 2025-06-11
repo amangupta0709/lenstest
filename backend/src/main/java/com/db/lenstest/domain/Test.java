@@ -2,83 +2,82 @@ package com.db.lenstest.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Table
+@Table("test")
 public class Test {
 
     @Id
-    private long id;
+    private Long id;
 
-    private long buildId;
-
+    private Long buildId;
+    private Long parentId;
     private String name;
 
-    private String description;
+    private TestLevel level; // FEATURE, SCENARIO, STEP
+    private TestStatus status = TestStatus.UNKNOWN; // PASSED, FAILED, SKIPPED, UNKNOWN, UNDEFINED
 
-    private long startedAt = System.currentTimeMillis();
+    @Column("started_at")
+    private Long startedAt = System.currentTimeMillis();
 
-    private long endedAt;
+    @Column("completed_at")
+    private Long completedAt;
 
-    private long durationMs;
+    private long duration;
 
-    private String result = Result.PASSED.getResult();
+    private String error; // only for steps
 
-    private String testType = TestType.FEATURE.getType();
+    @Column("tags_json")
+    private String tagsJson;
 
-    private final Set<Tag> tags = new HashSet<>();
+    @Transient
+    @JsonIgnore
+    private Set<String> tags = new CopyOnWriteArraySet<>();
 
-    private String error;
+    @Column("children_json")
+    private String childrenJson;
 
+    @Transient
+    @JsonIgnore
     private Queue<Test> children = new ConcurrentLinkedQueue<>();
 
-    private final List<String> logs = Collections.synchronizedList(new ArrayList<>());
-
-    private int depth;
-
+    @Transient
     @JsonIgnore
     private Test parent;
 
-    public void addTag(final String tag) {
-        if (null != tag && !tag.isBlank()) {
-            final Tag t = new Tag(tag);
-            this.tags.add(t);
-            if (null != parent) {
-                parent.addTag(tag);
-            }
-        }
-    }
-
     public void addChild(Test child) {
+        child.setParentId(this.getId());
         child.setParent(this);
-        child.setDepth(depth + 1);
-        child.getTags().forEach(tag -> addTag(tag.getName()));
+        this.tags.addAll(child.getTags());
         children.add(child);
     }
 
     public void complete(Optional<Throwable> error){
-        setEndedAt(System.currentTimeMillis());
+        setCompletedAt(System.currentTimeMillis());
+        setDuration(getCompletedAt()-getStartedAt());
         error.ifPresent(x -> {
             setError(readStackTrace(x));
-            setResult(Result.FAILED.getResult());
+            setStatus(TestStatus.FAILED);
         });
         if (null != parent) {
-            final Result computedResult = Result.computePriority(Result.valueOf(getResult()),
-                    Result.valueOf(parent.getResult()));
-            parent.setResult(computedResult.getResult());
+            final TestStatus computedStatus = TestStatus.computePriority(getStatus(),parent.getStatus());
+            parent.setStatus(computedStatus);
             parent.complete(Optional.empty());
         }
     }
@@ -89,4 +88,24 @@ public class Test {
         return sw.toString();
     }
 
+    public String getDurationPretty() {
+        long millis = getDuration();
+        if (1_000L > millis) {
+            return millis + "ms";
+        }
+        if (60_000L > millis) {
+            return String.format("%ds",
+                    TimeUnit.MILLISECONDS.toSeconds(millis) % 60);
+        }
+        if (3_600_000L > millis) {
+            return String.format("%dm %ds",
+                    TimeUnit.MILLISECONDS.toMinutes(millis),
+                    TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+        }
+        return String.format("%dh %dm %ds",
+                TimeUnit.MILLISECONDS.toHours(millis),
+                TimeUnit.MILLISECONDS.toMinutes(millis) % 60,
+                TimeUnit.MILLISECONDS.toSeconds(millis) % 60);
+    }
 }
+

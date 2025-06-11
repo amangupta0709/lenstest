@@ -1,26 +1,15 @@
 package com.db.lenstest.listener;
 
 import com.db.lenstest.config.ResultPublisher;
-import com.db.lenstest.domain.Build;
-import com.db.lenstest.domain.Result;
-import com.db.lenstest.domain.Test;
-import com.db.lenstest.domain.TestType;
-import com.db.lenstest.domainRepository.BuildRepository;
-import com.db.lenstest.domainRepository.TestRepository;
+import com.db.lenstest.domain.*;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.plugin.ConcurrentEventListener;
-import io.cucumber.plugin.EventListener;
 import io.cucumber.plugin.event.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootContextLoader;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,18 +17,18 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class ExtentCucumberListener implements ConcurrentEventListener {
 
+    Build build = new Build();
     Map<String,Test> featureTests = new ConcurrentHashMap<>();
     Map<UUID,Test> scenarioTests = new ConcurrentHashMap<>();
     Map<UUID,Test> stepTests = new ConcurrentHashMap<>();
-
-//    private BuildRepository buildRepository;
-//
-//    private TestRepository testRepository;
+    Set<String> featureBuildUpdated = new ConcurrentSkipListSet<>();
 
 
     @Override
@@ -71,7 +60,7 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
 //        }
 //        extent = new ExtentReports();
 //        extent.attachReporter(htmlReporter);
-        Build build = new Build();
+        build.setExecutionStage(ExecutionStage.IN_PROGRESS);
 //        buildRepository.save(build).subscribe();
     };
 
@@ -79,7 +68,10 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
     // TestRunFinished event is triggered when all feature file executions are
     // completed
     private void runFinished(TestRunFinished event) {
-//        extent.flush();
+        build.setCompletedAt(System.currentTimeMillis());
+        build.setDuration(build.getCompletedAt()- build.getStartedAt());
+        build.setExecutionStage(ExecutionStage.FINISHED);
+        ResultPublisher.publishOnBuildCompletion(build);
     };
 
 
@@ -101,8 +93,9 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
             final Stream<String> tags = feature.getTags().stream().map(Tag::getName);
             Test test = new Test();
             test.setName("Feature: "+feature.getName());
-            test.setTestType(TestType.FEATURE.getType());
-            tags.forEach(test::addTag);
+            test.setLevel(TestLevel.FEATURE);
+            test.setBuildId(build.getId());
+            test.getTags().addAll(tags.collect(Collectors.toSet()));
 
             featureTests.put(event.getUri().toString(), test);
         });
@@ -121,8 +114,9 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
         log.debug("Scenario start: {}", event.getTestCase().getName());
         Test scenario = new Test();
         scenario.setName(event.getTestCase().getKeyword() + ": " + event.getTestCase().getName());
-        scenario.setTestType(TestType.SCENARIO.getType());
-        event.getTestCase().getTags().forEach(scenario::addTag);
+        scenario.setLevel(TestLevel.SCENARIO);
+        scenario.setBuildId(build.getId());
+        scenario.getTags().addAll(event.getTestCase().getTags());
 
         featureTests.get(event.getTestCase().getUri().toString()).addChild(scenario);
         scenarioTests.put(event.getTestCase().getId(), scenario);
@@ -137,13 +131,24 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
 //        scenario.set(scenarioTest);
         log.debug("Scenario end: {}", event.getTestCase().getName());
         Test scenario = scenarioTests.get(event.getTestCase().getId());
-        scenario.setResult(event.getResult().getStatus().name());
+
+        scenario.setStatus(TestStatus.parseStatus(event.getResult().getStatus().name()));
         scenario.complete(Optional.empty());
-        featureTests.get(event.getTestCase().getUri().toString()).complete(Optional.empty());
+        Test feature = scenario.getParent();
+        feature.complete(Optional.empty());
 //        testRepository.save(scenario)
 //                .doOnSuccess(saved -> resultPublisher.publishOnScenarioCompletion(scenario))
 //                .subscribe();
-        ResultPublisher.publishOnScenarioCompletion(scenario);
+        build.updateStats(TestLevel.SCENARIO,scenario.getStatus());
+        if(!featureBuildUpdated.contains(event.getTestCase().getUri().toString())){
+            build.updateStats(TestLevel.FEATURE,feature.getStatus());
+            featureBuildUpdated.add(event.getTestCase().getUri().toString());
+        }
+        for(String tag : event.getTestCase().getTags()){
+            build.updateTagStats(tag,scenario.getStatus());
+        }
+        build.setDuration(System.currentTimeMillis()-build.getStartedAt());
+        ResultPublisher.publishOnScenarioCompletion(scenario,build);
     };
 
 
@@ -188,7 +193,8 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
             log.debug("Step starting: {}", pickle.getStep().getText());
             Test step = new Test();
             step.setName(pickle.getStep().getKeyword() + pickle.getStep().getText());
-            step.setTestType(TestType.STEP.getType());
+            step.setBuildId(build.getId());
+            step.setLevel(TestLevel.STEP);
 
             scenarioTests.get(event.getTestCase().getId()).addChild(step);
             stepTests.put(event.getTestStep().getId(), step);
@@ -217,8 +223,9 @@ public class ExtentCucumberListener implements ConcurrentEventListener {
         }
         if (null != step) {
             log.debug("Step ending: {}", step.getName());
+            step.setStatus(TestStatus.parseStatus(event.getResult().getStatus().name()));
             step.complete(Optional.ofNullable(event.getResult().getError()));
-            step.setResult(event.getResult().getStatus().name());
+            build.updateStats(TestLevel.STEP,step.getStatus());
         }
 
     };
