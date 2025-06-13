@@ -2,6 +2,8 @@ package com.db.lenstest.steps;
 
 import com.db.lenstest.model.TestDocument;
 import com.db.lenstest.repository.TestDocumentRepository;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,6 +22,12 @@ public class MongoConnectionSteps {
     private Exception connectionError;
     private String testCollection = "test_connection";
 
+    private Scenario scenario;
+
+    @Before
+    public void before(Scenario scenario){
+        this.scenario = scenario;
+    }
 
     @When("I connect to MongoDB")
     public void connectToMongoDB() {
@@ -48,6 +56,9 @@ public class MongoConnectionSteps {
 //            Thread.sleep(45000);
 //        }
 //        throw new RuntimeException("aaa");
+        scenario.log("hahahahahaha");
+        scenario.log("hahahahahaha1111");
+
         assertEquals(expectedCount,count);
     }
 
