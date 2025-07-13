@@ -1,4 +1,4 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
 import lombok.Getter;
 import lombok.Setter;

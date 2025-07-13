@@ -1,8 +1,8 @@
 package com.db.lenstest.controller;
 
 import com.db.lenstest.config.ResultPublisher;
-import com.db.lenstest.domainEntity.TestRunEntity;
-import com.db.lenstest.domainRepository.TestRunEntityRepository;
+import com.db.lenstest.lensEntity.TestRunEntity;
+import com.db.lenstest.lensRepository.TestRunEntityRepository;
 import com.db.lenstest.service.TestOrchestrator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

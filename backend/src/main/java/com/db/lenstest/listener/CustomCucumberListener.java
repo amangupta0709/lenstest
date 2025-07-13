@@ -2,9 +2,9 @@ package com.db.lenstest.listener;
 
 import com.db.lenstest.config.ResultPublisher;
 import com.db.lenstest.config.SpringContext;
-import com.db.lenstest.domain.*;
-import com.db.lenstest.domain.Step;
-import com.db.lenstest.domainRepository.TestRunEntityRepository;
+import com.db.lenstest.lensDTO.*;
+import com.db.lenstest.lensDTO.Step;
+import com.db.lenstest.lensRepository.TestRunEntityRepository;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.GherkinDocument;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class ExtentCucumberListener implements ConcurrentEventListener {
+public class CustomCucumberListener implements ConcurrentEventListener {
 
     TestRun testRun = new TestRun();
     ConcurrentSkipListSet<String> featureIds = new ConcurrentSkipListSet<>();

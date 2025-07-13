@@ -1,6 +1,6 @@
-package com.db.lenstest.domainEntity;
+package com.db.lenstest.lensEntity;
 
-import com.db.lenstest.domain.StatusCounter;
+import com.db.lenstest.lensDTO.StatusCounter;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 

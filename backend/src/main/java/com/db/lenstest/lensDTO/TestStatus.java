@@ -1,4 +1,4 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
 import java.util.Arrays;
 

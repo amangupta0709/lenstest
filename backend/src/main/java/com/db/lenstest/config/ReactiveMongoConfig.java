@@ -1,12 +1,12 @@
 package com.db.lenstest.config;
 
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -15,13 +15,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 @Configuration
-@EnableMongoRepositories(
+@EnableReactiveMongoRepositories(
         basePackages = "com.db.lenstest.lensRepository",
-        mongoTemplateRef = "mongoTemplate"
+        reactiveMongoTemplateRef = "reactiveMongoTemplate"
 )
-public class MongoConfig {
+public class ReactiveMongoConfig {
     @Bean
-    public MongoClient mongoClient() {
+    public MongoClient reactiveMongoClient() {
         try {
             TrustManager[] trustAllCertificates = new TrustManager[]{
                     new X509TrustManager() {
@@ -58,7 +58,7 @@ public class MongoConfig {
     }
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoClient mongoClient){
-        return new MongoTemplate(mongoClient, "lenstest");
+    public ReactiveMongoTemplate reactiveMongoTemplate(MongoClient reactiveMongoClient){
+           return new ReactiveMongoTemplate(reactiveMongoClient, "lenstest");
     }
 }

@@ -1,4 +1,4 @@
-package com.db.lenstest.domainEntity;
+package com.db.lenstest.lensEntity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,10 +7,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ScenarioDto {
+public class FeatureDto {
     private String id;
 
     private String name;
+
+    private String description;
 
     private String status;
 
@@ -22,5 +24,5 @@ public class ScenarioDto {
 
     private List<String> tags;
 
-    private List<StepDto> steps;
+    private List<ScenarioDto> scenarios;
 }

@@ -1,13 +1,13 @@
-package com.db.lenstest.domainRepository;
+package com.db.lenstest.lensRepository;
 
-import com.db.lenstest.domain.Feature;
-import com.db.lenstest.domain.Scenario;
-import com.db.lenstest.domain.Step;
-import com.db.lenstest.domain.TestRun;
-import com.db.lenstest.domainEntity.FeatureDto;
-import com.db.lenstest.domainEntity.ScenarioDto;
-import com.db.lenstest.domainEntity.StepDto;
-import com.db.lenstest.domainEntity.TestRunEntity;
+import com.db.lenstest.lensDTO.Feature;
+import com.db.lenstest.lensDTO.Scenario;
+import com.db.lenstest.lensDTO.Step;
+import com.db.lenstest.lensDTO.TestRun;
+import com.db.lenstest.lensEntity.FeatureDto;
+import com.db.lenstest.lensEntity.ScenarioDto;
+import com.db.lenstest.lensEntity.StepDto;
+import com.db.lenstest.lensEntity.TestRunEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;

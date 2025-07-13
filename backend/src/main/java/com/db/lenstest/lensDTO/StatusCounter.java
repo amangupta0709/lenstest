@@ -1,6 +1,5 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

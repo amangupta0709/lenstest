@@ -1,7 +1,7 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
-import com.db.lenstest.domainEntity.TestRunEntity;
-import com.db.lenstest.domainRepository.TestRunEntityMapper;
+import com.db.lenstest.lensEntity.TestRunEntity;
+import com.db.lenstest.lensRepository.TestRunEntityMapper;
 import lombok.Data;
 
 import java.time.Duration;

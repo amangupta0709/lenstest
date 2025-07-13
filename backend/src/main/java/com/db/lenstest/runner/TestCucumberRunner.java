@@ -9,7 +9,7 @@ import org.testng.annotations.DataProvider;
         glue = {"com.db.lenstest.config","com.db.lenstest.steps","com.db.lenstest.hooks"},
         plugin = {
                 "pretty",
-                "com.db.lenstest.listener.ExtentCucumberListener",
+                "com.db.lenstest.listener.CustomCucumberListener",
 //                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
         }
 )

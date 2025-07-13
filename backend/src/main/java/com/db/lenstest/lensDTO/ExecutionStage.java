@@ -1,4 +1,4 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
 public enum ExecutionStage {
     IN_PROGRESS,

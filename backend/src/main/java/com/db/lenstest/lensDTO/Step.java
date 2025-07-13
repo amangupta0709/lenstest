@@ -1,16 +1,16 @@
-package com.db.lenstest.domain;
+package com.db.lenstest.lensDTO;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Getter
 @Setter
-public class Scenario {
+public class Step {
 
     private UUID id;
 
@@ -24,13 +24,19 @@ public class Scenario {
 
     private String duration;
 
+    private String error;
+
+    private ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
+
     private ConcurrentSkipListSet<String> tags = new ConcurrentSkipListSet<>();
 
-    private ConcurrentLinkedDeque<Step> steps = new ConcurrentLinkedDeque<>();
 
-    public void addStep(Step step) {
-        steps.add(step);
-    }
+//    public void addChild(Feature child) {
+//        child.setParentId(this.getId());
+//        child.setParent(this);
+//        this.tags.addAll(child.getTags());
+//        children.add(child);
+//    }
 //
 //    public void complete(Optional<Throwable> error){
 //        setCompletedAt(System.currentTimeMillis());
