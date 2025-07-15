@@ -118,7 +118,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         }
 
         testRunEntityRepository.save(testRun.toEntity())
-                .doOnSuccess(testRunEntity -> ResultPublisher.publish(testRunEntity))
+                .doOnSuccess(ResultPublisher::publish)
                 .subscribe();
     };
 

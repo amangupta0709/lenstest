@@ -16,7 +16,7 @@ import java.security.cert.X509Certificate;
 
 @Configuration
 @EnableMongoRepositories(
-        basePackages = "com.db.lenstest.lensRepository",
+        basePackages = "com.db.lenstest.repository",
         mongoTemplateRef = "mongoTemplate"
 )
 public class MongoConfig {

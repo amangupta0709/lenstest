@@ -50,9 +50,10 @@ public class MongoConnectionSteps {
     @Then("I should find {int} document with id {string}")
     public void iShouldFindDocumentWithId(int expectedCount, String id) throws InterruptedException {
         long count = repository.findById(id).stream().count();
-//        if(id.equals("test-1")){
-//            Thread.sleep(15000);
-//        } else if(id.equals("test-2")){
+        if(id.equals("test-1")){
+            Thread.sleep(10000);
+        }
+//        else if(id.equals("test-2")){
 //            Thread.sleep(45000);
 //        }
 //        throw new RuntimeException("aaa");
