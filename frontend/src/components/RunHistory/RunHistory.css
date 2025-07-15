@@ -1,0 +1,139 @@
+.col-l {
+  width: 70% !important;
+}
+
+.col-s {
+  width: 25% !important;
+}
+
+.page-header {
+  color: white;
+}
+
+.card {
+  background-color: #151515 !important;
+  border-radius: 25px !important;
+}
+
+.run-title,
+.card-footer span {
+  color: rgb(214, 214, 214);
+}
+
+.run-icon {
+  color: #8b8b8b;
+}
+
+.accordion-button,
+.accordion-item {
+  border-radius: 15px !important;
+  background-color: #151515 !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+
+.accordion-button:not(.collapsed) {
+  border-radius: 15px !important;
+  background-color: #151515 !important;
+  box-shadow: none !important;
+}
+
+.accordion-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.accordion-button:after {
+  filter: brightness(0) invert(1);
+}
+
+.accordion-body {
+  color: #8b8b8b !important;
+}
+
+.accordion-header:focus {
+  color: #ffffff !important;
+}
+
+input[type="date"],
+input[type="radio"] {
+  background-color: #cccaca !important;
+  border: none !important;
+}
+
+input[type="date"]:focus {
+  box-shadow: none !important;
+}
+
+.form-check-input:checked {
+  background-color: rgb(8, 98, 244) !important;
+  box-shadow: inset 0 0 !important;
+  appearance: none;
+  border: 1px solid rgb(8, 98, 244) !important;
+}
+
+#resetBtn {
+  background-color: #151515 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+}
+
+.run-summary-card {
+  background-color: #151515 !important;
+  border-radius: 15px !important;
+  color: rgb(214, 214, 214) !important;
+  box-sizing: border-box !important;
+}
+
+.summary-doughnut {
+  height: 120px !important; 
+  width: 200px !important;
+  margin: 0 auto !important;
+}
+
+.success-color{
+  color: rgb(83, 221, 28) !important;
+}
+
+.failed-color{
+  color: rgb(231, 12, 12) !important;
+}
+
+.primary-color{
+  color: rgb(8, 98, 244) !important;
+}
+
+.finished-legend{
+  width: 12px; 
+  height: 12px; 
+  background-color: rgb(83, 221, 28);
+  margin-right: 5px;
+}
+
+.failed-legend{
+  width: 12px; 
+  height: 12px; 
+  background-color: rgb(231, 12, 12);
+  margin-right: 5px;
+}
+
+.stats{
+  font-size: 15px;
+  color: #bdbcbc;
+}
+
+.stats-tooltip{
+  font-size: 12px;
+  color: #8b8b8b;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.filter-datepicker .rdp-root {
+  --rdp-accent-color: rgb(8, 98, 244); 
+  --rdp-range_middle-background-color: #8b8b8b; 
+  --rdp-range_middle-color: black;
+  --rdp-dropdown-gap: 1.5rem;
+}
