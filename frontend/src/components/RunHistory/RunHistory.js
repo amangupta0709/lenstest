@@ -119,24 +119,24 @@ const RunHistory = (data) => {
 
   return (
     <div className="main-content app-content">
-      <div className="container">
+      <div className="container pb-5">
         <div className="row my-4">
           <div className="col page-header ps-0">
             <h5>
-              <i className="bi-clock-history fs-6 primary-color"></i> Run
+              <i className="bi-list-ul fs-5 primary-color"></i> Run
               History
             </h5>
           </div>
         </div>
 
         <div className="row justify-content-between">
-          <div className="col-l d-flex flex-column gap-3">
+          <div className="col-l d-flex flex-column gap-4">
             <div className="row card">
-              <div class="accordion">
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingOne">
+              <div className="accordion">
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingOne">
                     <button
-                      class="accordion-button collapsed"
+                      className="accordion-button collapsed"
                       type="button"
                       data-bs-toggle="collapse"
                       data-bs-target="#collapseOne"
@@ -149,17 +149,17 @@ const RunHistory = (data) => {
                   </h2>
                   <div
                     id="collapseOne"
-                    class="accordion-collapse collapse"
+                    className="accordion-collapse collapse"
                     aria-labelledby="headingOne"
                     data-bs-parent="#accordionExample"
                   >
-                    <div class="accordion-body d-flex flex-column gap-3">
-                      <div class="row justify-content-around">
+                    <div className="accordion-body d-flex flex-column gap-3">
+                      <div className="row justify-content-around">
                         <div className="col-3">Status</div>
                         <div className="col-6 d-flex flex-row gap-4">
-                          <div class="form-check form-check-inline">
+                          <div className="form-check form-check-inline">
                             <input
-                              class="form-check-input"
+                              className="form-check-input filter-radio-button"
                               type="radio"
                               name="inlineRadioOptions"
                               id="inlineRadio1"
@@ -169,13 +169,16 @@ const RunHistory = (data) => {
                               }
                               checked={filters.status === "Finished"}
                             />
-                            <label class="form-check-label" for="inlineRadio1">
+                            <label
+                              className="form-check-label"
+                              for="inlineRadio1"
+                            >
                               Finished
                             </label>
                           </div>
-                          <div class="form-check form-check-inline">
+                          <div className="form-check form-check-inline">
                             <input
-                              class="form-check-input"
+                              className="form-check-input filter-radio-button"
                               type="radio"
                               name="inlineRadioOptions"
                               id="inlineRadio2"
@@ -185,13 +188,16 @@ const RunHistory = (data) => {
                               }
                               checked={filters.status === "Failed"}
                             />
-                            <label class="form-check-label" for="inlineRadio2">
+                            <label
+                              className="form-check-label"
+                              for="inlineRadio2"
+                            >
                               Failed
                             </label>
                           </div>
                         </div>
                       </div>
-                      <div class="row justify-content-around">
+                      <div className="row justify-content-around">
                         <div className="col-3">Date Range</div>
                         <div className="col-6 filter-datepicker">
                           <DayPicker
@@ -206,8 +212,7 @@ const RunHistory = (data) => {
                       </div>
                       <button
                         type="button"
-                        id="resetBtn"
-                        class="btn btn-secondary"
+                        className="btn btn-secondary filter-reset-button"
                         onClick={handleReset}
                       >
                         Reset
@@ -261,7 +266,7 @@ const RunHistory = (data) => {
                       )}
                     </div>
                   </div>
-                  <div class="card-footer">
+                  <div className="card-footer run-filter-tag">
                     <span className="badge bg-outline-light">
                       {item.filterTag}
                     </span>
@@ -271,77 +276,69 @@ const RunHistory = (data) => {
             ))}
           </div>
           <div className="col-s">
-            <div className="sticky">
-              <div className="card run-summary-card">
-                <div className="card-header">
-                  <h5 className="mt-1 mb-1">
-                    <i className="bi-bar-chart-fill fs-6 primary-color"></i> Run
-                    Summary
-                  </h5>
-                </div>
-                <div className="card-body py-2">
-                  <div className="text-center mb-3">
-                    <div className="d-flex justify-content-center align-items-right">
-                      <div className="d-flex align-items-center me-3">
-                        <div className="finished-legend"></div>
-                        <span style={{ fontSize: "11px", color: "#8b8b8b" }}>
-                          Finished
-                        </span>
-                      </div>
-                      <div className="d-flex align-items-center legend-item">
-                        <div className="failed-legend"></div>
-                        <span style={{ fontSize: "11px", color: "#8b8b8b" }}>
-                          Failed
-                        </span>
-                      </div>
-                    </div>
+            <div className="card run-summary-card">
+              <div className="card-header mt-1">
+                <h5 className="">
+                  <i className="bi-bar-chart-fill fs-6 primary-color"></i> Run
+                  Summary
+                </h5>
+              </div>
+              <div className="card-body py-2 d-flex flex-column gap-3">
+                <div className="text-center d-flex justify-content-center gap-3">
+                  <div className="d-flex align-items-center">
+                    <div className="finished-legend"></div>
+                    <span className="stats-tooltip">Finished</span>
                   </div>
-
-                  {statsToday.finished + statsToday.failed !== 0 && (
-                    <div className="mb-4">
-                      <h6 className="text-center mb-2 stats">Today</h6>
-                      <div className="summary-doughnut">
-                        <Doughnut
-                          data={createDonutData(statsToday)}
-                          options={chartOptions}
-                        />
-                      </div>
-                      <p className="text-center mt-3 stats-tooltip">
-                        Total Runs : {statsToday.finished + statsToday.failed}
-                      </p>
-                    </div>
-                  )}
-
-                  {statsWeek.finished + statsWeek.failed !== 0 && (
-                    <div className="mb-4">
-                      <h6 className="text-center mb-2 stats">Last Week</h6>
-                      <div className="summary-doughnut">
-                        <Doughnut
-                          data={createDonutData(statsWeek)}
-                          options={chartOptions}
-                        />
-                      </div>
-                      <p className="text-center mt-3 stats-tooltip">
-                        Total Runs : {statsWeek.finished + statsWeek.failed}
-                      </p>
-                    </div>
-                  )}
-
-                  {statsMonth.finished + statsMonth.failed !== 0 && (
-                    <div className="mb-4">
-                      <h6 className="text-center mb-2 stats">Last Month</h6>
-                      <div className="summary-doughnut">
-                        <Doughnut
-                          data={createDonutData(statsMonth)}
-                          options={chartOptions}
-                        />
-                      </div>
-                      <p className="text-center mt-3 stats-tooltip">
-                        Total Runs : {statsMonth.finished + statsMonth.failed}
-                      </p>
-                    </div>
-                  )}
+                  <div className="d-flex align-items-center legend-item">
+                    <div className="failed-legend"></div>
+                    <span className="stats-tooltip">Failed</span>
+                  </div>
                 </div>
+
+                {statsToday.finished + statsToday.failed !== 0 && (
+                  <div>
+                    <h6 className="text-center mb-3 stats">Today</h6>
+                    <div className="summary-doughnut">
+                      <Doughnut
+                        data={createDonutData(statsToday)}
+                        options={chartOptions}
+                      />
+                    </div>
+                    <p className="text-center mt-2 stats-tooltip">
+                      Total Runs : {statsToday.finished + statsToday.failed}
+                    </p>
+                  </div>
+                )}
+
+                {statsWeek.finished + statsWeek.failed !== 0 && (
+                  <div>
+                    <h6 className="text-center mb-3 stats">Last Week</h6>
+                    <div className="summary-doughnut">
+                      <Doughnut
+                        data={createDonutData(statsWeek)}
+                        options={chartOptions}
+                      />
+                    </div>
+                    <p className="text-center mt-2 stats-tooltip">
+                      Total Runs : {statsWeek.finished + statsWeek.failed}
+                    </p>
+                  </div>
+                )}
+
+                {statsMonth.finished + statsMonth.failed !== 0 && (
+                  <div>
+                    <h6 className="text-center mb-3 stats">Last Month</h6>
+                    <div className="summary-doughnut">
+                      <Doughnut
+                        data={createDonutData(statsMonth)}
+                        options={chartOptions}
+                      />
+                    </div>
+                    <p className="text-center mt-2 stats-tooltip">
+                      Total Runs : {statsMonth.finished + statsMonth.failed}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -4,7 +4,8 @@ import RunHistory from './components/RunHistory/RunHistory';
 import { useParams } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import RunDetail from './components/RunDetail/RunDetail';
-
+import './App.css';
+import parsedDate from './components/utils/DateParser';
 
 const App = () => {
 
@@ -94,22 +95,8 @@ const App = () => {
       .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt)) // Sort by startedAt descending
       .map(item => ({
         id: item.id,
-        startedAt: new Date(item.startedAt).toLocaleString('en-US', {
-          month: 'short',
-          day: '2-digit',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        }).replace(/,/g, ''),
-        completedAt: item.completedAt ? new Date(item.completedAt).toLocaleString('en-US', {
-          month: 'short',
-          day: '2-digit',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        }).replace(/,/g, '') : null,
+        startedAt: parsedDate(item.startedAt),
+        completedAt: item.completedAt ? parsedDate(item.completedAt) : null,
         duration: item.duration,
         executionStage: item.executionStage,
         filterTag: item.filterTag,

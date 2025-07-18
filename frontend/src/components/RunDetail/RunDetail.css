@@ -1,0 +1,91 @@
+.test-summary .card-header,
+.test-details .card-header {
+  color: #ffffff !important;
+  border-bottom: 1px solid #272727 !important;
+}
+
+.test-summary .card-footer {
+  color: #bdbcbc !important;
+  border-top: 1px solid #272727 !important;
+  font-size: 13px !important;
+}
+
+.test-details .filter-reset-button {
+  width: 50% !important;
+}
+
+.dropdown .btn {
+  width: 100% !important;
+}
+
+.dropdown-menu {
+  width: 100% !important;
+  background-color: #272727 !important;
+  padding-bottom: 0px !important;
+}
+
+.dropdown-item {
+  color: #cccaca !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dropdown-item:hover {
+  color: black !important;
+  background-color: #cccaca !important;
+}
+
+.feature-name {
+  color: #cccaca !important;
+}
+
+.feature-heading {
+  color: #cccaca !important;
+  font-weight: bolder;
+  font-size: 20px;
+}
+
+.feature-description {
+  color: #8b8b8b !important;
+}
+
+.warning-text {
+  color: #8b8b8b !important;
+}
+
+.scroll-visible {
+  overflow-y: scroll;
+  max-height: 800px;
+}
+
+.feature-detail:hover {
+  background-color: rgba(87, 85, 85, 0.197) !important;
+  border-radius: 20px;
+}
+
+.feature-detail.selected {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px;
+}
+
+.scenario-detail,
+.feature-detail {
+  border: 2px solid rgba(87, 85, 85, 0.197);
+  border-radius: 20px;
+}
+
+.scenario-detail:hover {
+  background-color: rgba(87, 85, 85, 0.197) !important;
+  border-radius: 20px;
+}
+
+.scenario-detail.selected {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px;
+}
+
+.badge-dark {
+  background-color: #8b8b8b !important;
+  color: black !important;
+}

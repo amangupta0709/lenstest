@@ -1,0 +1,96 @@
+.page-header {
+  color: white;
+}
+
+.card {
+  background-color: #151515 !important;
+  border-radius: 25px !important;
+  box-shadow: -6px 8px 20px #0b0505 !important;
+}
+
+.success-color {
+  color: rgb(83, 221, 28) !important;
+}
+
+.failed-color {
+  color: rgb(231, 12, 12) !important;
+}
+
+.primary-color {
+  color: rgb(8, 98, 244) !important;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.btn-primary:hover {
+  background-color: rgb(8, 98, 244) !important;
+  color: white !important;
+}
+
+.btn-primary {
+  background-color: transparent !important;
+  border: 2px solid rgb(8, 98, 244) !important;
+  color: rgb(8, 98, 244) !important;
+}
+
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: #bdbcbc !important;
+  --bs-table-border-color: #8b8b8b !important;
+}
+
+.accordion-button,
+.accordion-item {
+  border-radius: 15px !important;
+  background-color: #151515 !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+
+.accordion-button:not(.collapsed) {
+  border-radius: 15px !important;
+  background-color: #151515 !important;
+  box-shadow: none !important;
+}
+
+.accordion-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.accordion-button:after {
+  filter: brightness(0) invert(1);
+}
+
+.accordion-body {
+  color: #8b8b8b !important;
+}
+
+.accordion-header:focus {
+  color: #ffffff !important;
+}
+
+input[type="date"],
+input[type="radio"] {
+  background-color: #cccaca !important;
+  border: none !important;
+}
+
+input[type="date"]:focus {
+  box-shadow: none !important;
+}
+
+.filter-radio-button:checked {
+  background-color: rgb(8, 98, 244) !important;
+  box-shadow: inset 0 0 !important;
+  appearance: none;
+  border: 1px solid rgb(8, 98, 244) !important;
+}
+
+.filter-reset-button {
+  background-color: #151515 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+}
