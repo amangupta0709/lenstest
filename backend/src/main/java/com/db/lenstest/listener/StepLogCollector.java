@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StepLogCollector {
-    private static final ThreadLocal<List<String> logCollector = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<List<String>> logCollector = ThreadLocal.withInitial(ArrayList::new);
 
     public static void add(String value) { logCollector.get().add(value); }
 

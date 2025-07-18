@@ -8,7 +8,6 @@ import com.db.lenstest.lensRepository.TestRunEntityRepository;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.GherkinDocument;
-import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.*;
@@ -32,7 +31,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
     TestRun testRun = new TestRun();
     ConcurrentHashMap<String, Feature> featureMap = new ConcurrentHashMap<>();
 
-    private TestRunEntityRepository testRunEntityRepository = SpringContext.getBean(TestRunEntityRepository.class);
+    private final TestRunEntityRepository testRunEntityRepository = SpringContext.getBean(TestRunEntityRepository.class);
 
 
     @Override
@@ -45,27 +44,25 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         publisher.registerHandlerFor(TestStepStarted.class, this::stepStarted);
         publisher.registerHandlerFor(TestStepFinished.class, this::stepFinished);
         publisher.registerHandlerFor(WriteEvent.class, this::writeLogEvent);
-    };
+    }
 
     private void runStarted(TestRunStarted event) {
         testRun.setExecutionStage(ExecutionStage.IN_PROGRESS);
         testRun.setFilterTag(System.getProperty("cucumber.filter.tags"));
         testRunEntityRepository
                 .save(testRun.toEntity())
-                .doOnSuccess(testRunEntity -> {
-                    testRun.setId(testRunEntity.getId());
-                })
+                .doOnSuccess(testRunEntity -> testRun.setId(testRunEntity.getId()))
                 .subscribe();
-    };
+    }
 
     private void runFinished(TestRunFinished event) {
         testRun.setCompletedAt(LocalDateTime.now());
         testRun.setExecutionStage(ExecutionStage.FINISHED);
         testRunEntityRepository
                 .save(testRun.toEntity())
-                .doOnSuccess(testRunEntity -> ResultPublisher.publish(testRunEntity))
+                .doOnSuccess(ResultPublisher::publish)
                 .subscribe();
-    };
+    }
 
     private void featureRead(TestSourceRead event) {
         Optional<io.cucumber.messages.types.Feature> container = parseFeature(event);
@@ -80,7 +77,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
 
             featureMap.put(feature.getId(), feature);
         });
-    };
+    }
 
     private void ScenarioStarted(TestCaseStarted event) {
         log.debug("Scenario start: {}", event.getTestCase().getName());
@@ -97,7 +94,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         scenario.getTags().addAll(event.getTestCase().getTags());
 
         testRun.getFeatures().get(featureId).addScenario(scenario);
-    };
+    }
 
     private void ScenarioFinished(TestCaseFinished event) {
         log.debug("Scenario end: {}", event.getTestCase().getName());
@@ -123,11 +120,10 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         testRunEntityRepository.save(testRun.toEntity())
                 .doOnSuccess(ResultPublisher::publish)
                 .subscribe();
-    };
+    }
 
     private void stepStarted(TestStepStarted event) {
-        if (event.getTestStep() instanceof PickleStepTestStep) {
-            final PickleStepTestStep pickle = ((PickleStepTestStep) event.getTestStep());
+        if (event.getTestStep() instanceof PickleStepTestStep pickle) {
             log.debug("Step starting: {}", pickle.getStep().getText());
 
             String featureId = event.getTestCase().getUri().getSchemeSpecificPart();
@@ -148,7 +144,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
 
             scenario.addStep(step);
         }
-    };
+    }
 
     private void stepFinished(TestStepFinished event) {
         String featureId = event.getTestCase().getUri().getSchemeSpecificPart();
@@ -180,10 +176,11 @@ public class CustomCucumberListener implements ConcurrentEventListener {
                 logDTO.setShowReport(false);
                 step.getLogs().add(logDTO);
             }
+            StepLogCollector.clear();
             testRun.updateStepStats(step.getStatus());
         }
 
-    };
+    }
 
     private void writeLogEvent(WriteEvent event){
         Log logDTO = new Log();
@@ -204,7 +201,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
                 .includeSource(false)
                 .build();
         try {
-            URI uri = this.getClass().getClassLoader().getResource(event.getUri().getSchemeSpecificPart()).toURI();
+            URI uri = Objects.requireNonNull(this.getClass().getClassLoader().getResource(event.getUri().getSchemeSpecificPart())).toURI();
             final Optional<Envelope> envelope = parser.parse(Paths.get(uri))
                     .findAny();
             if (envelope.isEmpty() || envelope.get().getGherkinDocument().isEmpty()) {
