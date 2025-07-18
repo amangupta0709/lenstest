@@ -1,13 +1,7 @@
 package com.db.lenstest.lensRepository;
 
-import com.db.lenstest.lensDTO.Feature;
-import com.db.lenstest.lensDTO.Scenario;
-import com.db.lenstest.lensDTO.Step;
-import com.db.lenstest.lensDTO.TestRun;
-import com.db.lenstest.lensEntity.FeatureDto;
-import com.db.lenstest.lensEntity.ScenarioDto;
-import com.db.lenstest.lensEntity.StepDto;
-import com.db.lenstest.lensEntity.TestRunEntity;
+import com.db.lenstest.lensDTO.*;
+import com.db.lenstest.lensEntity.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -25,8 +19,8 @@ public class TestRunEntityMapper {
         entity.setExecutionStage(source.getExecutionStage().name());
         entity.setFilterTag(source.getFilterTag());
 
-        List<FeatureDto> features = source.getFeatures().values().stream()
-                .map(TestRunEntityMapper::featureToDto)
+        List<FeatureEntity> features = source.getFeatures().values().stream()
+                .map(TestRunEntityMapper::featureToEntity)
                 .toList();
 
         entity.setFeatures(features);
@@ -62,54 +56,70 @@ public class TestRunEntityMapper {
 //        return testRun;
 //    }
 
-    private static FeatureDto featureToDto(Feature feature) {
-        FeatureDto dto = new FeatureDto();
-        dto.setId(feature.getId());
-        dto.setName(feature.getName());
-        dto.setDescription(feature.getDescription());
-        dto.setStatus(feature.getStatus().name());
-        dto.setStartedAt(feature.getStartedAt().toString());
-        dto.setCompletedAt((feature.getCompletedAt()!=null)?feature.getCompletedAt().toString():null);
-        dto.setDuration(feature.getDuration());
-        dto.setTags(feature.getTags().stream().toList());
+    private static FeatureEntity featureToEntity(Feature feature) {
+        FeatureEntity featureEntity = new FeatureEntity();
+        featureEntity.setId(feature.getId());
+        featureEntity.setName(feature.getName());
+        featureEntity.setDescription(feature.getDescription());
+        featureEntity.setStatus(feature.getStatus().name());
+        featureEntity.setStartedAt(feature.getStartedAt().toString());
+        featureEntity.setCompletedAt((feature.getCompletedAt()!=null)?feature.getCompletedAt().toString():null);
+        featureEntity.setDuration(feature.getDuration());
+        featureEntity.setTags(feature.getTags().stream().toList());
 
-        List<ScenarioDto> scenarios = feature.getScenarios().values().stream()
-                .map(TestRunEntityMapper::scenarioToDto)
+        List<ScenarioEntity> scenarios = feature.getScenarios().values().stream()
+                .map(TestRunEntityMapper::scenarioToEntity)
                 .toList();
 
-        dto.setScenarios(scenarios);
-        return dto;
+        featureEntity.setScenarios(scenarios);
+
+        return featureEntity;
     }
 
-    private static ScenarioDto scenarioToDto(Scenario scenario) {
-        ScenarioDto dto = new ScenarioDto();
-        dto.setId(scenario.getId().toString());
-        dto.setName(scenario.getName());
-        dto.setStatus(scenario.getStatus().name());
-        dto.setStartedAt(scenario.getStartedAt().toString());
-        dto.setCompletedAt((scenario.getCompletedAt()!=null)?scenario.getCompletedAt().toString():null);
-        dto.setDuration(scenario.getDuration());
-        dto.setTags(scenario.getTags().stream().toList());
+    private static ScenarioEntity scenarioToEntity(Scenario scenario) {
+        ScenarioEntity scenarioEntity = new ScenarioEntity();
+        scenarioEntity.setId(scenario.getId().toString());
+        scenarioEntity.setName(scenario.getName());
+        scenarioEntity.setStatus(scenario.getStatus().name());
+        scenarioEntity.setStartedAt(scenario.getStartedAt().toString());
+        scenarioEntity.setCompletedAt((scenario.getCompletedAt()!=null)?scenario.getCompletedAt().toString():null);
+        scenarioEntity.setDuration(scenario.getDuration());
+        scenarioEntity.setTags(scenario.getTags().stream().toList());
 
-        List<StepDto> steps = scenario.getSteps().stream()
-                .map(TestRunEntityMapper::stepToDto)
+        List<StepEntity> steps = scenario.getSteps().stream()
+                .map(TestRunEntityMapper::stepToEntity)
                 .toList();
 
-        dto.setSteps(steps);
-        return dto;
+        scenarioEntity.setSteps(steps);
+
+        return scenarioEntity;
     }
 
-    private static StepDto stepToDto(Step step) {
-        StepDto dto = new StepDto();
-        dto.setId(step.getId().toString());
-        dto.setName(step.getName());
-        dto.setStatus(step.getStatus().name());
-        dto.setStartedAt(step.getStartedAt().toString());
-        dto.setCompletedAt((step.getCompletedAt()!=null)?step.getCompletedAt().toString():null);
-        dto.setDuration(step.getDuration());
-        dto.setError(step.getError());
-        dto.setLogs(step.getLogs().stream().toList());
+    private static StepEntity stepToEntity(Step step) {
+        StepEntity stepEntity = new StepEntity();
+        stepEntity.setId(step.getId().toString());
+        stepEntity.setName(step.getName());
+        stepEntity.setStatus(step.getStatus().name());
+        stepEntity.setStartedAt(step.getStartedAt().toString());
+        stepEntity.setCompletedAt((step.getCompletedAt()!=null)?step.getCompletedAt().toString():null);
+        stepEntity.setDuration(step.getDuration());
+        stepEntity.setError(step.getError());
+        stepEntity.setDataTable(step.getDataTable());
 
-        return dto;
+        List<LogEntity> logs = step.getLogs().stream()
+                .map(TestRunEntityMapper::logToEntity)
+                .toList();
+
+        stepEntity.setLogs(logs);
+
+        return stepEntity;
+    }
+
+    private static LogEntity logToEntity(Log log){
+        LogEntity logEntity = new LogEntity();
+        logEntity.setValue(log.getValue());
+        logEntity.setShowReport(log.isShowReport());
+
+        return logEntity;
     }
 }

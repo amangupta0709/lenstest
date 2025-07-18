@@ -7,12 +7,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public class FeatureDto {
+public class StepEntity {
     private String id;
 
     private String name;
-
-    private String description;
 
     private String status;
 
@@ -22,7 +20,9 @@ public class FeatureDto {
 
     private String duration;
 
-    private List<String> tags;
+    private String error;
 
-    private List<ScenarioDto> scenarios;
+    private List<LogEntity> logs;
+
+    private List<List<String>> dataTable;
 }

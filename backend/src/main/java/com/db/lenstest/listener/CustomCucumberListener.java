@@ -8,6 +8,7 @@ import com.db.lenstest.lensRepository.TestRunEntityRepository;
 import io.cucumber.gherkin.GherkinParser;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.*;
@@ -21,7 +22,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 public class CustomCucumberListener implements ConcurrentEventListener {
 
     TestRun testRun = new TestRun();
-    ConcurrentSkipListSet<String> featureIds = new ConcurrentSkipListSet<>();
+    ConcurrentHashMap<String, Feature> featureMap = new ConcurrentHashMap<>();
 
     private TestRunEntityRepository testRunEntityRepository = SpringContext.getBean(TestRunEntityRepository.class);
 
@@ -77,9 +78,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
             feature.getTags().addAll(tags.collect(Collectors.toSet()));
             feature.setStatus(TestStatus.PASSED);
 
-            testRun.addFeature(feature);
-            testRun.getFeatureStats().getTotal().incrementAndGet();
-            testRun.getFeatureStats().getPassed().incrementAndGet();
+            featureMap.put(feature.getId(), feature);
         });
     };
 
@@ -87,6 +86,10 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         log.debug("Scenario start: {}", event.getTestCase().getName());
         String featureId = event.getTestCase().getUri().getSchemeSpecificPart();
         UUID scenarioId = event.getTestCase().getId();
+
+        testRun.addFeature(featureMap.get(featureId));
+        testRun.getFeatureStats().getTotal().incrementAndGet();
+        testRun.getFeatureStats().getPassed().incrementAndGet();
 
         Scenario scenario = new Scenario();
         scenario.setId(scenarioId);
@@ -138,6 +141,11 @@ public class CustomCucumberListener implements ConcurrentEventListener {
             step.setId(stepId);
             step.setName(pickle.getStep().getKeyword() + pickle.getStep().getText());
 
+            StepArgument argument = pickle.getStep().getArgument();
+            if (argument instanceof DataTableArgument dataTableArgument) {
+                step.setDataTable(dataTableArgument.cells());
+            }
+
             scenario.addStep(step);
         }
     };
@@ -166,18 +174,28 @@ public class CustomCucumberListener implements ConcurrentEventListener {
             step.setCompletedAt(LocalDateTime.now());
             step.setStatus(TestStatus.parseStatus(event.getResult().getStatus().name()));
             step.setError(readStackTrace(event.getResult().getError()));
+            for(String logString : StepLogCollector.get()) {
+                Log logDTO = new Log();
+                logDTO.setValue(logString);
+                logDTO.setShowReport(false);
+                step.getLogs().add(logDTO);
+            }
             testRun.updateStepStats(step.getStatus());
         }
 
     };
 
     private void writeLogEvent(WriteEvent event){
+        Log logDTO = new Log();
+        logDTO.setValue(event.getText());
+        logDTO.setShowReport(true);
+
         String featureId = event.getTestCase().getUri().getSchemeSpecificPart();
         UUID scenarioId = event.getTestCase().getId();
 
         Feature feature = testRun.getFeatures().get(featureId);
         Scenario scenario = feature.getScenarios().get(scenarioId);
-        scenario.getSteps().getLast().getLogs().add(event.getText());
+        scenario.getSteps().getLast().getLogs().add(logDTO);
     }
 
     private Optional<io.cucumber.messages.types.Feature> parseFeature(final TestSourceRead event) {

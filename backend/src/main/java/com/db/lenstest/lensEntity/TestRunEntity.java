@@ -31,5 +31,5 @@ public class TestRunEntity {
 
     private Map<String,StatusCounter> tagStats;
 
-    private List<FeatureDto> features;
+    private List<FeatureEntity> features;
 }

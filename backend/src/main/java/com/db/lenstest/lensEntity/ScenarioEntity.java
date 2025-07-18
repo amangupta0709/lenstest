@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class StepDto {
+public class ScenarioEntity {
     private String id;
 
     private String name;
@@ -20,7 +20,7 @@ public class StepDto {
 
     private String duration;
 
-    private String error;
+    private List<String> tags;
 
-    private List<String> logs;
+    private List<StepEntity> steps;
 }

@@ -26,10 +26,11 @@ public class Step {
 
     private String error;
 
-    private ConcurrentLinkedDeque<String> logs = new ConcurrentLinkedDeque<>();
+    private ConcurrentLinkedDeque<Log> logs = new ConcurrentLinkedDeque<>();
 
     private ConcurrentSkipListSet<String> tags = new ConcurrentSkipListSet<>();
 
+    private List<List<String>> dataTable;
 
 //    public void addChild(Feature child) {
 //        child.setParentId(this.getId());
