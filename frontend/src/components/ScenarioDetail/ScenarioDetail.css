@@ -1,0 +1,52 @@
+.scenario-badge {
+  background-color: rgb(74, 115, 135) !important;
+  color: black !important;
+  font-size: 0.85rem !important;
+}
+
+.data-table {
+  background-color: #181819 !important;
+  width: auto !important;
+  table-layout: auto !important;
+  margin: 10px 15px 10px 15px !important;
+}
+
+.data-table td {
+  padding: 10px 40px;
+  border: 1px solid #292929 !important;
+  color: #bdbcbc !important;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.step-header {
+  font-weight: 500 !important;
+}
+
+.step-log {
+  background-color: #181819;
+  border: 1px solid #292929;
+  color: #bdbcbc;
+  resize: vertical;
+  overflow: auto;
+  border-radius: 25px;
+  max-width: 90%;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.step-error {
+  background-color: #181819;
+  border: 1px solid #292929;
+  color: #bdbcbc;
+  resize: vertical;
+  overflow: auto;
+  width: 90%;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.step:has(.step-error) {
+  cursor: pointer;
+}

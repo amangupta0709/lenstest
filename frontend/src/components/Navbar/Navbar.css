@@ -1,12 +1,13 @@
 .container-fluid {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.navbar .name{
-    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Ubuntu, 'Helvetica Neue', sans-serif;
-    font-size: 30px;
-    font-weight: 600;
-    color: #ffffff;
-    text-decoration: none;
-    border: none !important;
+.navbar .name {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Ubuntu,
+    "Helvetica Neue", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  border: none !important;
 }

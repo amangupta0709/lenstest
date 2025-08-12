@@ -1,3 +1,10 @@
+:root {
+  --color-success: rgb(4, 207, 45);
+  --color-failed: rgb(230, 9, 9);
+  --color-primary: rgb(8, 98, 244);
+  --color-skipped: rgba(175, 174, 174, 0.77);
+}
+
 .page-header {
   color: white;
 }
@@ -9,15 +16,19 @@
 }
 
 .success-color {
-  color: rgb(83, 221, 28) !important;
+  color: var(--color-success) !important;
 }
 
 .failed-color {
-  color: rgb(231, 12, 12) !important;
+  color: var(--color-failed) !important;
+}
+
+.skipped-color {
+  color: var(--color-skipped) !important;
 }
 
 .primary-color {
-  color: rgb(8, 98, 244) !important;
+  color: var(--color-primary) !important;
 }
 
 a {
@@ -25,17 +36,17 @@ a {
 }
 
 .btn-primary:hover {
-  background-color: rgb(8, 98, 244) !important;
+  background-color: var(--color-primary) !important;
   color: white !important;
 }
 
 .btn-primary {
   background-color: transparent !important;
-  border: 2px solid rgb(8, 98, 244) !important;
-  color: rgb(8, 98, 244) !important;
+  border: 2px solid var(--color-primary) !important;
+  color: var(--color-primary) !important;
 }
 
-.table {
+.tags-table {
   --bs-table-bg: transparent !important;
   --bs-table-color: #bdbcbc !important;
   --bs-table-border-color: #8b8b8b !important;
@@ -83,14 +94,64 @@ input[type="date"]:focus {
 }
 
 .filter-radio-button:checked {
-  background-color: rgb(8, 98, 244) !important;
+  background-color: var(--color-primary) !important;
   box-shadow: inset 0 0 !important;
   appearance: none;
-  border: 1px solid rgb(8, 98, 244) !important;
+  border: 1px solid var(--color-primary) !important;
 }
 
 .filter-reset-button {
   background-color: #151515 !important;
   color: #ffffff !important;
   border-radius: 10px !important;
+}
+
+.box:hover {
+  background-color: rgba(87, 85, 85, 0.197) !important;
+  border-radius: 20px;
+}
+
+.box.selected {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px;
+}
+
+.box {
+  border: 2px solid rgba(87, 85, 85, 0.197);
+  border-radius: 20px;
+}
+
+.badge-dark {
+  background-color: #8b8b8b !important;
+  color: black !important;
+  font-size: 0.85rem !important;
+}
+
+.scroll-visible {
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.modal-content {
+  color: rgb(214, 214, 214) !important;
+  background-color: #151515 !important;
+  border-radius: 25px !important;
+  box-shadow: -6px 8px 20px #0b0505 !important;
+}
+
+.modal-header {
+  border: none !important;
+}
+
+.modal-footer {
+  border: none !important;
+}
+
+.modal-footer button {
+  width: 100% !important;
+  background-color: transparent !important;
+}
+
+body.modal-open .container {
+  filter: blur(2px);
 }

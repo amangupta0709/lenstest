@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 const Nav = (data) => {
@@ -6,9 +7,9 @@ const Nav = (data) => {
       <div className="container">
         <div className="row">
           <nav className="navbar">
-            <a className="navbar name" href="/">
+            <Link className="navbar name" to="/">
               LensTest
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

@@ -4,8 +4,30 @@ import { Chart as ChartJS } from "chart.js/auto";
 import "./RunHistory.css";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { Link } from "react-router-dom";
 
-const RunHistory = (data) => {
+const RunHistory = ({ props }) => {
+  const [newRun, setNewRun] = useState({
+    tag: "",
+  });
+
+  const handleNewRunChange = (key, value) => {
+    setNewRun((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const newRunSubmit = async () => {
+    try {
+      const tagValue = encodeURIComponent(newRun.tag);
+      const url = `http://localhost:8080/api/tests/execute?tag=${tagValue}`;
+      await fetch(url, { method: "POST" });
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
+
   const [filters, setFilters] = useState({
     status: "",
     dateRange: { from: "", to: "" },
@@ -30,9 +52,9 @@ const RunHistory = (data) => {
 
   // Filter the data based on current filters (dynamically)
   const filteredData = useMemo(() => {
-    if (!data.props) return [];
+    if (!props) return [];
 
-    return data.props.filter((item) => {
+    return props.filter((item) => {
       // Status filter
       if (filters.status) {
         const itemStatus =
@@ -61,7 +83,7 @@ const RunHistory = (data) => {
 
       return true;
     });
-  }, [data.props, filters]);
+  }, [props, filters]);
 
   // Calculate stats for donut charts
   const calculateStats = (days) => {
@@ -71,8 +93,8 @@ const RunHistory = (data) => {
     let finished = 0;
     let failed = 0;
 
-    if (data.props) {
-      data.props.forEach((item) => {
+    if (props) {
+      props.forEach((item) => {
         const itemDate = new Date(item.startedAt);
         if (itemDate >= cutoffDate) {
           if (item.executionStage === "FINISHED") {
@@ -96,7 +118,7 @@ const RunHistory = (data) => {
     datasets: [
       {
         data: [stats.finished, stats.failed],
-        backgroundColor: ["rgb(83, 221, 28)", "rgb(231, 12, 12)"],
+        backgroundColor: ["rgb(4, 207, 45)", "rgb(230, 9, 9)"],
         borderColor: "transparent",
         hoverOffset: 8,
       },
@@ -121,11 +143,21 @@ const RunHistory = (data) => {
     <div className="main-content app-content">
       <div className="container pb-5">
         <div className="row my-4">
-          <div className="col page-header ps-0">
-            <h5>
-              <i className="bi-list-ul fs-5 primary-color"></i> Run
-              History
+          <div className="col page-header ps-0 d-flex align-items-center">
+            <h5 className="m-0">
+              <i className="bi-list-ul fs-5 primary-color"></i> Run History
             </h5>
+          </div>
+          <div className="col d-flex justify-content-end">
+            <button
+              type="button"
+              className="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#new-run-modal"
+            >
+              <i className="bi bi-gear-fill me-2"></i>
+              New Run
+            </button>
           </div>
         </div>
 
@@ -171,7 +203,7 @@ const RunHistory = (data) => {
                             />
                             <label
                               className="form-check-label"
-                              for="inlineRadio1"
+                              htmlFor="inlineRadio1"
                             >
                               Finished
                             </label>
@@ -190,7 +222,7 @@ const RunHistory = (data) => {
                             />
                             <label
                               className="form-check-label"
-                              for="inlineRadio2"
+                              htmlFor="inlineRadio2"
                             >
                               Failed
                             </label>
@@ -222,58 +254,66 @@ const RunHistory = (data) => {
                 </div>
               </div>
             </div>
-            {filteredData.map((item) => (
-              <a href={`/${item.id}`}>
-                <div className="row card">
-                  <div className="card-body ms-1 d-flex flex-column gap-2 pb-0">
-                    <div className="run-title">
-                      {item.executionStage === "FINISHED" && (
-                        <i className="bi bi-check-circle-fill success-color"></i>
-                      )}
-                      {item.executionStage === "FAILED" && (
-                        <i className="bi bi-x-circle-fill failed-color"></i>
-                      )}
-                      {item.executionStage === "IN_PROGRESS" && (
-                        <span className="spinner-border spinner-border-sm text-primary"></span>
-                      )}
+            {filteredData.length > 0 ? (
+              filteredData.map((item, index) => (
+                <Link to={`/${item.id}`} key={index}>
+                  <div className="row card">
+                    <div className="card-body ms-1 d-flex flex-column gap-2 pb-0">
+                      <div className="run-title">
+                        {item.executionStage === "FINISHED" && (
+                          <i className="bi bi-check-circle-fill success-color"></i>
+                        )}
+                        {item.executionStage === "FAILED" && (
+                          <i className="bi bi-x-circle-fill failed-color"></i>
+                        )}
+                        {item.executionStage === "IN_PROGRESS" && (
+                          <span className="spinner-border spinner-border-sm text-primary"></span>
+                        )}
 
-                      <span className="ms-2 fw-semibold">Run #{item.id}</span>
+                        <span className="ms-2 fw-semibold">Run #{item.id}</span>
+                      </div>
+                      <div className="run-details">
+                        {(item.executionStage === "FINISHED" ||
+                          item.executionStage === "FAILED") && (
+                          <span className="small run-icon">
+                            <i className="bi bi-hourglass me-2"></i>
+                            {item.duration}
+                          </span>
+                        )}
+                        {item.executionStage === "IN_PROGRESS" && (
+                          <span className="small run-icon">
+                            <i className="bi bi-hourglass-split me-2"></i>
+                            In Progress
+                          </span>
+                        )}
+
+                        <br></br>
+                        <span className="small run-icon">
+                          <i className="bi bi-calendar me-2"></i>
+                          {item.startedAt}
+                        </span>
+                        {item.completedAt && (
+                          <span className="small ms-1 run-icon">
+                            - {item.completedAt}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="run-details">
-                      {(item.executionStage === "FINISHED" ||
-                        item.executionStage === "FAILED") && (
-                        <span className="small run-icon">
-                          <i className="bi bi-hourglass me-2"></i>
-                          {item.duration}
-                        </span>
-                      )}
-                      {item.executionStage === "IN_PROGRESS" && (
-                        <span className="small run-icon">
-                          <i className="bi bi-hourglass-split me-2"></i>
-                          In Progress
-                        </span>
-                      )}
-
-                      <br></br>
-                      <span className="small run-icon">
-                        <i className="bi bi-calendar me-2"></i>
-                        {item.startedAt}
+                    <div className="card-footer run-filter-tag">
+                      <span className="badge bg-outline-light">
+                        {item.filterTag}
                       </span>
-                      {item.completedAt && (
-                        <span className="small ms-1 run-icon">
-                          - {item.completedAt}
-                        </span>
-                      )}
                     </div>
                   </div>
-                  <div className="card-footer run-filter-tag">
-                    <span className="badge bg-outline-light">
-                      {item.filterTag}
-                    </span>
-                  </div>
-                </div>
-              </a>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div className="warning-text text-center py-5">
+                <i className="bi bi-inbox fs-1"></i>
+                <br></br>
+                No Runs found
+              </div>
+            )}
           </div>
           <div className="col-s">
             <div className="card run-summary-card">
@@ -284,16 +324,18 @@ const RunHistory = (data) => {
                 </h5>
               </div>
               <div className="card-body py-2 d-flex flex-column gap-3">
-                <div className="text-center d-flex justify-content-center gap-3">
-                  <div className="d-flex align-items-center">
-                    <div className="finished-legend"></div>
-                    <span className="stats-tooltip">Finished</span>
+                {statsMonth.finished + statsMonth.failed !== 0 && (
+                  <div className="row d-flex">
+                    <div className="col d-flex align-items-center justify-content-center">
+                      <div className="finished-legend"></div>
+                      <span className="stats-tooltip">Finished</span>
+                    </div>
+                    <div className="col d-flex align-items-center justify-content-center">
+                      <div className="failed-legend"></div>
+                      <span className="stats-tooltip">Failed</span>
+                    </div>
                   </div>
-                  <div className="d-flex align-items-center legend-item">
-                    <div className="failed-legend"></div>
-                    <span className="stats-tooltip">Failed</span>
-                  </div>
-                </div>
+                )}
 
                 {statsToday.finished + statsToday.failed !== 0 && (
                   <div>
@@ -339,7 +381,44 @@ const RunHistory = (data) => {
                     </p>
                   </div>
                 )}
+
+                {statsMonth.finished + statsMonth.failed === 0 && (
+                  <div className="warning-text text-center py-5">
+                    <i className="bi bi-inbox fs-1"></i>
+                    <br></br>
+                    No Runs found
+                  </div>
+                )}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="new-run-modal">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">
+                <i className="bi bi-gear-fill me-2"></i>New Run
+              </h5>
+            </div>
+            <div className="modal-body">
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Tag"
+                onChange={(e) => handleNewRunChange("tag", e.target.value)}
+              />
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+                onClick={newRunSubmit}
+              >
+                Submit
+              </button>
             </div>
           </div>
         </div>

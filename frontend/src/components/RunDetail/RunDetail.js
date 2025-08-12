@@ -3,6 +3,7 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 import "./RunDetail.css";
 import parsedDate from "../utils/DateParser";
+import { Link } from "react-router-dom";
 
 const RunDetail = (data) => {
   console.log("Data", data);
@@ -22,9 +23,9 @@ const RunDetail = (data) => {
     datasets: [
       {
         backgroundColor: [
-          "rgb(83, 221, 28)",
-          "rgb(231, 12, 12)",
-          "rgb(8, 98, 244)",
+          "rgb(4, 207, 45)",
+          "rgb(230, 9, 9)",
+          "rgba(175, 174, 174, 0.77)",
         ],
         borderColor: "transparent",
         hoverOffset: 8,
@@ -128,7 +129,53 @@ const RunDetail = (data) => {
     );
   }, [data, filters]);
 
-  console.log("Filtered Data", filteredData);
+  const handleDownload = () => {
+    const element = document.getElementById("root"); // your component's container
+
+    if (!element) {
+      alert("Snapshot element not found");
+      return;
+    }
+
+    // Inline styles
+    const styles = Array.from(document.styleSheets)
+      .map((sheet) => {
+        try {
+          return Array.from(sheet.cssRules)
+            .map((rule) => rule.cssText)
+            .join("\n");
+        } catch {
+          return ""; // ignore cross-origin stylesheets
+        }
+      })
+      .join("\n");
+
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>${document.title}</title>
+      <style>${styles}</style>
+    </head>
+    <body>
+      <div id="root">
+        ${element.innerHTML}
+      </div>
+    </body>
+    </html>
+    `;
+
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `run-report.html`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="container d-flex flex-column gap-4 pb-5">
@@ -153,8 +200,18 @@ const RunDetail = (data) => {
             className="btn btn-primary btn-sm"
             onClick={(e) => setShowSummary(!showSummary)}
           >
-            <i className="bi bi-bar-chart-fill me-1"></i>{" "}
+            <i className="bi bi-bar-chart-fill me-2"></i>
             {showSummary ? "Hide " : "Show "} Summary
+          </button>
+        </div>
+        <div className="col pe-0 d-flex justify-content-end">
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={(e) => handleDownload()}
+          >
+            <i className="bi bi-bar-chart-fill me-2"></i>
+            Download
           </button>
         </div>
       </div>
@@ -431,27 +488,24 @@ const RunDetail = (data) => {
           <div className="row">
             <div className="card px-0">
               <div className="card-header py-3">
-                <h6>
-                  <i className="bi bi-list-ul px-2"></i>
-                  Test Details
-                </h6>
+                <h6 className="px-2">Test Details</h6>
               </div>
               <div className="card-body p-0">
                 {filteredData && filteredData.length > 0 ? (
                   <div className="row pe-4">
                     {/* Features List - Left Side */}
-                    <div className="col-4 scroll-visible d-flex flex-column gap-2 mt-2">
+                    <div className="col-4 scroll-visible d-flex flex-column gap-2 mt-3 ps-4 mb-4">
                       {filteredData
                         .sort(
                           (a, b) =>
                             new Date(a.startedAt) - new Date(b.startedAt)
                         )
                         .map((feature, index) => (
-                          <a
+                          <div
                             key={index}
                             type="button"
                             onClick={() => setSelectedFeature(index)}
-                            className={`feature-detail py-3 ${
+                            className={`box py-3 ${
                               selectedFeature === index ? "selected" : ""
                             }`}
                           >
@@ -493,7 +547,7 @@ const RunDetail = (data) => {
                                 )}
                               </div>
                             </div>
-                          </a>
+                          </div>
                         ))}
                     </div>
 
@@ -513,11 +567,12 @@ const RunDetail = (data) => {
                           {Object.entries(
                             filteredData[selectedFeature].scenarios || {}
                           ).map(([scenarioKey, scenario]) => (
-                            <a
+                            <Link
                               key={scenarioKey}
                               type="button"
+                              to={`/${data.id}/scenario/${scenario.id}`}
                               onClick={() => setSelectedScenario(scenarioKey)}
-                              className={`scenario-detail py-3 ${
+                              className={`box py-3 ${
                                 selectedScenario === scenarioKey
                                   ? "selected"
                                   : ""
@@ -560,7 +615,7 @@ const RunDetail = (data) => {
                                   </span>
                                 )}
                               </div>
-                            </a>
+                            </Link>
                           ))}
                         </div>
                       ) : (

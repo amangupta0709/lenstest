@@ -22,23 +22,17 @@
   box-sizing: border-box !important;
 }
 
-.summary-doughnut {
-  height: 120px !important;
-  width: 200px !important;
-  margin: 0 auto !important;
-}
-
 .finished-legend {
   width: 12px;
   height: 12px;
-  background-color: rgb(83, 221, 28);
+  background-color: var(--color-success);
   margin-right: 5px;
 }
 
 .failed-legend {
   width: 12px;
   height: 12px;
-  background-color: rgb(231, 12, 12);
+  background-color: var(--color-failed);
   margin-right: 5px;
 }
 
@@ -53,7 +47,7 @@
 }
 
 .filter-datepicker .rdp-root {
-  --rdp-accent-color: rgb(8, 98, 244);
+  --rdp-accent-color: var(--color-primary);
   --rdp-range_middle-background-color: #8b8b8b;
   --rdp-range_middle-color: black;
   --rdp-dropdown-gap: 1.5rem;
