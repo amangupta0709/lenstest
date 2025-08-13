@@ -204,7 +204,7 @@ const RunDetail = (data) => {
             {showSummary ? "Hide " : "Show "} Summary
           </button>
         </div>
-        <div className="col pe-0 d-flex justify-content-end">
+        {/* <div className="col pe-0 d-flex justify-content-end">
           <button
             type="button"
             className="btn btn-primary btn-sm"
@@ -213,7 +213,7 @@ const RunDetail = (data) => {
             <i className="bi bi-bar-chart-fill me-2"></i>
             Download
           </button>
-        </div>
+        </div> */}
       </div>
       {showSummary && (
         <div className="test-summary">
