@@ -50,49 +50,49 @@ public class TestExecutionController {
     }
 
     @GetMapping("/")
-    public List<TestRunEntity> getAllBuilds(){
+    public List<TestRunEntity> getAllTestRuns(){
         return testRunEntityRepository.findAll().collectList().block();
     }
 
     @GetMapping("/tags")
-    public Set<String> listTags() {
+    public Set<String> getAllTags() {
         return featureFilesParser.getAllTags();
     }
 
     // Scheduled Run Endpoints
     @PostMapping("/scheduled")
-    public Mono<ScheduledRunEntity> createScheduledRun(@RequestBody ScheduledRunRequest request) {
+    public Mono<ScheduledRunEntity> createScheduledRunConfig(@RequestBody ScheduledRunRequest request) {
         if (!request.isValidCronExpression()) {
             return Mono.error(new IllegalArgumentException("Invalid cron expression: " + request.getCronExpression()));
         }
-        return scheduledRunService.createScheduledRun(request);
+        return scheduledRunService.createScheduledRunConfig(request);
     }
 
     @GetMapping("/scheduled")
-    public Flux<ScheduledRunEntity> getAllScheduledRuns() {
-        return scheduledRunService.getAllScheduledRuns();
+    public Flux<ScheduledRunEntity> getAllScheduledRunConfigs() {
+        return scheduledRunService.getAllScheduledRunConfigs();
     }
 
     @GetMapping("/scheduled/active")
-    public Flux<ScheduledRunEntity> getActiveScheduledRuns() {
-        return scheduledRunService.getActiveScheduledRuns();
+    public Flux<ScheduledRunEntity> getActiveScheduledRunConfigs() {
+        return scheduledRunService.getActiveScheduledRunConfigs();
     }
 
     @DeleteMapping("/scheduled/{id}")
-    public Mono<Void> deleteScheduledRun(@PathVariable String id) {
-        return scheduledRunService.deleteScheduledRun(id);
+    public Mono<Void> deleteScheduledRunConfig(@PathVariable String id) {
+        return scheduledRunService.deleteScheduledRunConfig(id);
     }
 
     @PutMapping("/scheduled/{id}/toggle")
-    public Mono<ScheduledRunEntity> toggleScheduledRun(@PathVariable String id, @RequestParam boolean active) {
-        return scheduledRunService.toggleScheduledRun(id, active);
+    public Mono<ScheduledRunEntity> toggleScheduledRunConfig(@PathVariable String id, @RequestParam boolean active) {
+        return scheduledRunService.toggleScheduledRunConfig(id, active);
     }
 
     @PutMapping("/scheduled/{id}")
-    public Mono<ScheduledRunEntity> updateScheduledRun(@PathVariable String id, @RequestBody ScheduledRunRequest request) {
+    public Mono<ScheduledRunEntity> updateScheduledRunConfig(@PathVariable String id, @RequestBody ScheduledRunRequest request) {
         if (!request.isValidCronExpression()) {
             return Mono.error(new IllegalArgumentException("Invalid cron expression: " + request.getCronExpression()));
         }
-        return scheduledRunService.updateScheduledRun(id, request);
+        return scheduledRunService.updateScheduledRunConfig(id, request);
     }
 }

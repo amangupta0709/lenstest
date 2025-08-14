@@ -28,6 +28,10 @@ public class TestRunEntityMapper {
         entity.setFeatureStats(source.getFeatureStats());
         entity.setScenarioStats(source.getScenarioStats());
         entity.setStepStats(source.getStepStats());
+        entity.setRunType(source.getRunType());
+        entity.setScheduledRunId(source.getScheduledRunId());
+        entity.setProcessId(source.getProcessId());
+        entity.setLastHeartbeat(source.getLastHeartbeat());
 
         return entity;
     }

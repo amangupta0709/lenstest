@@ -6,6 +6,8 @@ import com.db.lenstest.lensDTO.*;
 import com.db.lenstest.lensDTO.Step;
 import com.db.lenstest.lensRepository.TestRunEntityRepository;
 import com.db.lenstest.service.FeatureFilesParser;
+import com.db.lenstest.service.TestRunCleanupService;
+import com.db.lenstest.service.TestRunHeartbeatManager;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.*;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -27,6 +30,8 @@ public class CustomCucumberListener implements ConcurrentEventListener {
     FeatureFilesParser featureFilesParser = new FeatureFilesParser();
 
     private final TestRunEntityRepository testRunEntityRepository = SpringContext.getBean(TestRunEntityRepository.class);
+    private final TestRunCleanupService testRunCleanupService = SpringContext.getBean(TestRunCleanupService.class);
+    private final TestRunHeartbeatManager heartbeatManager = SpringContext.getBean(TestRunHeartbeatManager.class);
 
 
     @Override
@@ -42,20 +47,57 @@ public class CustomCucumberListener implements ConcurrentEventListener {
     }
 
     private void runStarted(TestRunStarted event) {
+
         testRun.setExecutionStage(ExecutionStage.IN_PROGRESS);
-        testRun.setFilterTag(System.getProperty("cucumber.filter.tags"));
+        testRun.setFilterTag((String) TestRunContext.get("filterTag"));
+
+        RunType runType = (RunType) TestRunContext.get("runType");
+        String scheduledRunId = (String) TestRunContext.get("scheduledRunId");
+        String processId = (String) TestRunContext.get("processId");
+        
+        if (runType == null) runType = RunType.MANUAL;
+        if (processId == null) processId = testRunCleanupService.getCurrentProcessId();
+
+        testRun.initialValues(runType, scheduledRunId, processId);
+        
+        log.info("Initialized test run with runType: {}, processId: {}, scheduledRunId: {}", 
+                runType, processId, scheduledRunId);
+        
+        // Save to database and start heartbeat
         testRunEntityRepository
                 .save(testRun.toEntity())
-                .doOnSuccess(testRunEntity -> testRun.setId(testRunEntity.getId()))
+                .doOnSuccess(testRunEntity -> {
+                    testRun.setId(testRunEntity.getId());
+                    log.info("Created test run entity with ID: " + testRunEntity.getId());
+                    
+                    // Start heartbeat monitoring - this updates the DTO's heartbeat field
+                    heartbeatManager.startHeartbeat(testRunEntity.getId(), () -> {
+                        testRun.updateHeartbeat();
+                        log.debug("Updated heartbeat for run: " + testRunEntity.getId());
+                    });
+                })
                 .subscribe();
     }
 
     private void runFinished(TestRunFinished event) {
+        log.info("Test run finished for run ID: " + testRun.getId());
+        
+        // Stop heartbeat monitoring
+        if (testRun.getId() != null) {
+            heartbeatManager.stopHeartbeat(testRun.getId());
+        }
+        
+        // Finalize test run
         testRun.setCompletedAt(LocalDateTime.now());
         testRun.setExecutionStage(ExecutionStage.FINISHED);
+        
+        // Final save and publish
         testRunEntityRepository
                 .save(testRun.toEntity())
-                .doOnSuccess(ResultPublisher::publish)
+                .doOnSuccess(testRunEntity -> {
+                    log.info("Test run completed and saved: " + testRunEntity.getId());
+                    ResultPublisher.publish(testRunEntity);
+                })
                 .subscribe();
     }
 
@@ -76,6 +118,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
 
     private void ScenarioStarted(TestCaseStarted event) {
         log.debug("Scenario start: {}", event.getTestCase().getName());
+
         String featureId = event.getTestCase().getUri().getSchemeSpecificPart();
         UUID scenarioId = event.getTestCase().getId();
 

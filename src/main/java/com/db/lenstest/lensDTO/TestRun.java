@@ -7,13 +7,14 @@ import lombok.Data;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
+import java.time.format.DateTimeFormatter;
 
 @Data
 public class TestRun {
 
     private String id;
 
-    private LocalDateTime startedAt = LocalDateTime.now();
+    private LocalDateTime startedAt;
 
     private LocalDateTime completedAt;
 
@@ -32,6 +33,16 @@ public class TestRun {
     private ConcurrentMap<String, StatusCounter> tagStats = new ConcurrentHashMap<>();
 
     private ConcurrentHashMap<String,Feature> features = new ConcurrentHashMap<>();
+
+    private RunType runType = RunType.MANUAL;
+
+    private LocalDateTime actualStartTime;
+
+    private String scheduledRunId;
+
+    private String processId;
+
+    private volatile LocalDateTime lastHeartbeat;
 
     public TestRunEntity toEntity(){
         return TestRunEntityMapper.toEntity(this);
@@ -129,6 +140,22 @@ public class TestRun {
         }
 
         return sb.toString().trim();
+    }
+
+    public void initialValues(RunType runType, String scheduledRunId, String processId) {
+        this.runType = runType;
+        this.scheduledRunId = scheduledRunId;
+        this.processId = processId;
+        this.startedAt = LocalDateTime.now();
+        this.lastHeartbeat = LocalDateTime.now();
+    }
+    
+    /**
+     * Update heartbeat timestamp - thread safe
+     * Called periodically during test execution
+     */
+    public void updateHeartbeat() {
+        this.lastHeartbeat = LocalDateTime.now();
     }
 }
 

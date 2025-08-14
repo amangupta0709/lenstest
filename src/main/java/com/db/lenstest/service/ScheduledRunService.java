@@ -1,8 +1,10 @@
 package com.db.lenstest.service;
 
+import com.db.lenstest.lensDTO.RunType;
 import com.db.lenstest.lensDTO.ScheduledRunRequest;
 import com.db.lenstest.lensEntity.ScheduledRunEntity;
 import com.db.lenstest.lensRepository.ScheduledRunRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
+@Slf4j
 public class ScheduledRunService {
 
     @Autowired
@@ -29,7 +32,7 @@ public class ScheduledRunService {
     // Map to keep track of scheduled tasks
     private final ConcurrentHashMap<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    public Mono<ScheduledRunEntity> createScheduledRun(ScheduledRunRequest request) {
+    public Mono<ScheduledRunEntity> createScheduledRunConfig(ScheduledRunRequest request) {
         ScheduledRunEntity entity = new ScheduledRunEntity();
         entity.setName(request.getName());
         entity.setIncludeTags(request.getIncludeTags());
@@ -40,15 +43,15 @@ public class ScheduledRunService {
                 .doOnSuccess(this::scheduleTask);
     }
 
-    public Flux<ScheduledRunEntity> getAllScheduledRuns() {
+    public Flux<ScheduledRunEntity> getAllScheduledRunConfigs() {
         return scheduledRunRepository.findAll();
     }
 
-    public Flux<ScheduledRunEntity> getActiveScheduledRuns() {
+    public Flux<ScheduledRunEntity> getActiveScheduledRunConfigs() {
         return scheduledRunRepository.findByActiveTrue();
     }
 
-    public Mono<Void> deleteScheduledRun(String id) {
+    public Mono<Void> deleteScheduledRunConfig(String id) {
         return scheduledRunRepository.findById(id)
                 .doOnNext(entity -> {
                     // Cancel the scheduled task
@@ -61,7 +64,7 @@ public class ScheduledRunService {
                 .then(scheduledRunRepository.deleteById(id));
     }
 
-    public Mono<ScheduledRunEntity> toggleScheduledRun(String id, boolean active) {
+    public Mono<ScheduledRunEntity> toggleScheduledRunConfig(String id, boolean active) {
         return scheduledRunRepository.findById(id)
                 .flatMap(entity -> {
                     entity.setActive(active);
@@ -88,24 +91,28 @@ public class ScheduledRunService {
             CronTrigger cronTrigger = new CronTrigger(entity.getCronExpression());
             
             Runnable task = () -> {
-                System.out.println("Executing scheduled run: " + entity.getName());
+                log.info("Executing scheduled run: " + entity.getName() + " (ID: " + entity.getId() + ")");
                 
-                // Create the test expression from tags
-                String testExpression = createTestExpression(entity.getIncludeTags(), entity.getExcludeTags());
-                
-                // Execute the test
-                testOrchestrator.executeTests(testExpression);
-                
-                // Update last run information
-                entity.setLastRunAt(LocalDateTime.now());
-                scheduledRunRepository.save(entity).subscribe();
+                try {
+                    // Create the test expression from tags
+                    String testExpression = createTestExpression(entity.getIncludeTags(), entity.getExcludeTags());
+                    
+                    // Execute the test with proper run type and scheduled run ID
+                    testOrchestrator.executeTests(testExpression, RunType.SCHEDULED, entity.getId());
+
+                    // Update last run information
+                    entity.setLastRunAt(LocalDateTime.now());
+                    scheduledRunRepository.save(entity).subscribe();
+                } catch (Exception e) {
+                    log.error("Error executing scheduled run " + entity.getName() + ": " + e.getMessage());
+                }
             };
 
             ScheduledFuture<?> scheduledTask = taskScheduler.schedule(task, cronTrigger);
             scheduledTasks.put(entity.getId(), scheduledTask);
             
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid cron expression for scheduled run " + entity.getName() + ": " + e.getMessage());
+            log.error("Invalid cron expression for scheduled run " + entity.getName() + ": " + e.getMessage());
         }
     }
 
@@ -128,7 +135,7 @@ public class ScheduledRunService {
         return finalTagExpression;
     }
 
-    public Mono<ScheduledRunEntity> updateScheduledRun(String id, ScheduledRunRequest request) {
+    public Mono<ScheduledRunEntity> updateScheduledRunConfig(String id, ScheduledRunRequest request) {
         return scheduledRunRepository.findById(id)
                 .flatMap(entity -> {
                     // Cancel existing scheduled task
@@ -155,7 +162,7 @@ public class ScheduledRunService {
 
     // Initialize all active scheduled runs on application startup
     public void initializeScheduledRuns() {
-        getActiveScheduledRuns()
+        getActiveScheduledRunConfigs()
                 .doOnNext(this::scheduleTask)
                 .subscribe();
     }
