@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Nav from "./components/Navbar/Navbar";
 import RunHistory from "./components/RunHistory/RunHistory";
 import { BrowserRouter, useParams } from "react-router-dom";
@@ -10,6 +10,23 @@ import ScenarioDetail from "./components/ScenarioDetail/ScenarioDetail";
 
 const App = () => {
   const [results, setResults] = useState([]);
+  const [tagOptions, setTagOptions] = useState({});
+
+  // Fetch tags from API
+  useEffect(() => {
+    fetch("http://localhost:8080/api/tests/tags")
+      .then((res) => res.json())
+      .then((json) => {
+        const options = json.map((tag) => ({
+          value: tag,
+          label: tag,
+        }));
+        setTagOptions(options);
+      })
+      .catch((err) => {
+        console.error("Error fetching tags:", err);
+      });
+  }, []);
 
   // Fetch full result history on initial page load
   useEffect(() => {
@@ -96,16 +113,20 @@ const App = () => {
   };
 
   const AppRouter = ({ children }) => {
-    const Router = window.location.protocol === "file:" ? HashRouter : BrowserRouter;
-    return <Router>{children}</Router>
-  }
+    const Router =
+      window.location.protocol === "file:" ? HashRouter : BrowserRouter;
+    return <Router>{children}</Router>;
+  };
 
   return (
     <div>
       <AppRouter>
         <Nav />
         <Routes>
-          <Route path="/" element={<RunHistory props={buildProps} />} />
+          <Route
+            path="/"
+            element={<RunHistory props={buildProps} tagOptions={tagOptions} />}
+          />
           <Route path="/:id" element={<ReportDetailsWrapper />} />
           <Route
             path="/:id/scenario/:scenarioId"

@@ -1,14 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 import "./RunHistory.css";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { Link } from "react-router-dom";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import ScheduledRun from "../ScheduledRun/ScheduledRun";
 
-const RunHistory = ({ props }) => {
+const RunHistory = ({ props, tagOptions }) => {
   const [newRun, setNewRun] = useState({
-    tag: "",
+    includeTags: [],
+    excludeTags: [],
   });
 
   const handleNewRunChange = (key, value) => {
@@ -20,9 +24,13 @@ const RunHistory = ({ props }) => {
 
   const newRunSubmit = async () => {
     try {
-      const tagValue = encodeURIComponent(newRun.tag);
-      const url = `http://localhost:8080/api/tests/execute?tag=${tagValue}`;
-      await fetch(url, { method: "POST" });
+      const url = "http://localhost:8080/api/tests/execute";
+      console.log(JSON.stringify(newRun));
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRun),
+      });
     } catch (error) {
       console.error("Fetch error:", error);
     }
@@ -148,7 +156,16 @@ const RunHistory = ({ props }) => {
               <i className="bi-list-ul fs-5 primary-color"></i> Run History
             </h5>
           </div>
-          <div className="col d-flex justify-content-end">
+          <div className="col d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#scheduled-run-modal"
+            >
+              <i className="bi bi-clock-fill me-2"></i>
+              Schedule Run
+            </button>
             <button
               type="button"
               className="btn btn-primary"
@@ -403,12 +420,56 @@ const RunHistory = ({ props }) => {
               </h5>
             </div>
             <div className="modal-body">
-              <input
+              {/* <input
                 className="form-control"
                 type="text"
                 placeholder="Tag"
                 onChange={(e) => handleNewRunChange("tag", e.target.value)}
-              />
+              /> */}
+              <div className="column d-flex flex-column gap-4">
+                <div className="row">
+                  <label className="select-label mb-2 fs-6 fw-bold">
+                    Include Tags
+                  </label>
+                  <Select
+                    isMulti
+                    name="tagOptions"
+                    closeMenuOnSelect={false}
+                    onFocus={false}
+                    components={makeAnimated()}
+                    options={tagOptions}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    onChange={(selected) => {
+                      handleNewRunChange(
+                        "includeTags",
+                        selected?.map((opt) => opt.value) || []
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="row">
+                  <label className="select-label mb-2 fs-6 fw-bold">
+                    Exclude Tags
+                  </label>
+                  <Select
+                    isMulti
+                    name="excludeTags"
+                    closeMenuOnSelect={false}
+                    components={makeAnimated()}
+                    options={tagOptions}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    onChange={(selected) => {
+                      handleNewRunChange(
+                        "excludeTags",
+                        selected?.map((opt) => opt.value) || []
+                      );
+                    }}
+                  />
+                </div>
+              </div>
             </div>
             <div className="modal-footer">
               <button
@@ -416,6 +477,10 @@ const RunHistory = ({ props }) => {
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
                 onClick={newRunSubmit}
+                disabled={
+                  newRun.includeTags.length === 0 &&
+                  newRun.excludeTags.length === 0
+                }
               >
                 Submit
               </button>
@@ -423,6 +488,7 @@ const RunHistory = ({ props }) => {
           </div>
         </div>
       </div>
+      <ScheduledRun tagOptions={tagOptions} />
     </div>
   );
 };

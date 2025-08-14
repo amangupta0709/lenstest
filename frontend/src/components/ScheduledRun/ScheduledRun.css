@@ -1,0 +1,19 @@
+.scheduled-run-card {
+  background-color: #151515 !important;
+  border-radius: 15px !important;
+  color: rgb(214, 214, 214) !important;
+  box-sizing: border-box !important;
+}
+
+.scheduled-run-card .card-header {
+  border-bottom: 0.5px solid rgb(214, 214, 214);
+  padding-bottom: 10px;
+}
+
+.scheduled-run-card .card-body {
+  color: #cccaca !important;
+}
+
+.scheduled-run-card .card-body .small {
+  color: #8b8b8b !important;
+}

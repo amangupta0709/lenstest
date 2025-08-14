@@ -52,3 +52,7 @@
   --rdp-range_middle-color: black;
   --rdp-dropdown-gap: 1.5rem;
 }
+
+.select-label {
+  color: rgb(214, 214, 214);
+}
