@@ -38,6 +38,7 @@ const RunHistory = ({ props, tagOptions }) => {
 
   const [filters, setFilters] = useState({
     status: "",
+    runType: "",
     dateRange: { from: "", to: "" },
   });
 
@@ -53,6 +54,7 @@ const RunHistory = ({ props, tagOptions }) => {
   const handleReset = () => {
     const resetFilters = {
       status: "",
+      runType: "",
       dateRange: { from: "", to: "" },
     };
     setFilters(resetFilters);
@@ -68,9 +70,13 @@ const RunHistory = ({ props, tagOptions }) => {
         const itemStatus =
           item.executionStage === "FINISHED" ||
           item.executionStage === "IN_PROGRESS"
-            ? "Finished"
-            : "Failed";
+            ? "FINISHED"
+            : "FAILED";
         if (itemStatus !== filters.status) return false;
+      }
+
+      if (filters.runType) {
+        if (item.runType !== filters.runType) return false;
       }
 
       // Date range filter
@@ -210,17 +216,17 @@ const RunHistory = ({ props, tagOptions }) => {
                             <input
                               className="form-check-input filter-radio-button"
                               type="radio"
-                              name="inlineRadioOptions"
-                              id="inlineRadio1"
-                              value="Finished"
+                              name="inlineRadioOptionStatus"
+                              id="inlineRadioStatus1"
+                              value="FINISHED"
                               onChange={(e) =>
                                 handleFilterChange("status", e.target.value)
                               }
-                              checked={filters.status === "Finished"}
+                              checked={filters.status === "FINISHED"}
                             />
                             <label
                               className="form-check-label"
-                              htmlFor="inlineRadio1"
+                              htmlFor="inlineRadioStatus1"
                             >
                               Finished
                             </label>
@@ -229,19 +235,62 @@ const RunHistory = ({ props, tagOptions }) => {
                             <input
                               className="form-check-input filter-radio-button"
                               type="radio"
-                              name="inlineRadioOptions"
-                              id="inlineRadio2"
-                              value="Failed"
+                              name="inlineRadioOptionStatus"
+                              id="inlineRadioStatus2"
+                              value="FAILED"
                               onChange={(e) =>
                                 handleFilterChange("status", e.target.value)
                               }
-                              checked={filters.status === "Failed"}
+                              checked={filters.status === "FAILED"}
                             />
                             <label
                               className="form-check-label"
-                              htmlFor="inlineRadio2"
+                              htmlFor="inlineRadioStatus2"
                             >
                               Failed
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row justify-content-around">
+                        <div className="col-3">Run Type</div>
+                        <div className="col-6 d-flex flex-row gap-4">
+                          <div className="form-check form-check-inline">
+                            <input
+                              className="form-check-input filter-radio-button"
+                              type="radio"
+                              name="inlineRadioOptionType"
+                              id="inlineRadioType1"
+                              value="SCHEDULED"
+                              onChange={(e) =>
+                                handleFilterChange("runType", e.target.value)
+                              }
+                              checked={filters.runType === "SCHEDULED"}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="inlineRadioType1"
+                            >
+                              Scheduled
+                            </label>
+                          </div>
+                          <div className="form-check form-check-inline">
+                            <input
+                              className="form-check-input filter-radio-button"
+                              type="radio"
+                              name="inlineRadioOptionType"
+                              id="inlineRadioType2"
+                              value="MANUAL"
+                              onChange={(e) =>
+                                handleFilterChange("runType", e.target.value)
+                              }
+                              checked={filters.runType === "MANUAL"}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="inlineRadioType2"
+                            >
+                              Manual
                             </label>
                           </div>
                         </div>
@@ -290,6 +339,28 @@ const RunHistory = ({ props, tagOptions }) => {
                         <span className="ms-2 fw-semibold">Run #{item.id}</span>
                       </div>
                       <div className="run-details">
+                        {item.runType && (
+                          <span className={`small run-icon`}>
+                            {item.runType === "SCHEDULED" ? (
+                              <i className="bi bi-clock-fill me-2"></i>
+                            ) : (
+                              <i className="bi bi-gear-fill me-2"></i>
+                            )}
+                            {item.runType === "SCHEDULED"
+                              ? "Triggered by Scheduler"
+                              : "Triggered Manually"}
+                          </span>
+                        )}
+                        <br></br>
+                        {item.scheduledRunId && (
+                          <span
+                            className="badge ms-1 bg-light text-dark"
+                            title="Scheduled Run ID"
+                          >
+                            <i className="bi bi-link-45deg me-1"></i>
+                            {item.scheduledRunId.substring(0, 8)}...
+                          </span>
+                        )}
                         {(item.executionStage === "FINISHED" ||
                           item.executionStage === "FAILED") && (
                           <span className="small run-icon">

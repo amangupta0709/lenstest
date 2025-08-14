@@ -80,6 +80,7 @@ const App = () => {
         id: item.id,
         startedAt: parsedDate(item.startedAt),
         completedAt: item.completedAt ? parsedDate(item.completedAt) : null,
+        runType: item.runType,
         duration: item.duration,
         executionStage: item.executionStage,
         filterTag: item.filterTag,
