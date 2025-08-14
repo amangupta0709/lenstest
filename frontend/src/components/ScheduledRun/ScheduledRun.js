@@ -3,6 +3,7 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import "./ScheduledRun.css";
 import parsedCron from "../utils/CronParser";
+import { FaEllipsisV } from "react-icons/fa";
 
 const ScheduledRun = ({ tagOptions }) => {
   const scheduleTypes = [
@@ -48,7 +49,7 @@ const ScheduledRun = ({ tagOptions }) => {
     {
       value: "7",
       label: "Saturday",
-    }
+    },
   ];
   const [scheduledRun, setScheduledRun] = useState({
     name: "",
@@ -419,12 +420,14 @@ const ScheduledRun = ({ tagOptions }) => {
                       </div>
                     ) : (
                       <div className="col d-flex flex-column gap-3">
-                        {scheduledRuns.map((run) => (
+                        {scheduledRuns.map((run, key) => (
                           <div key={run.id} className="row">
                             <div className="d-flex justify-content-between align-items-start">
                               <div className="flex-grow-1">
                                 <div className="d-flex align-items-center mb-2">
-                                  <h6 className="mb-0 me-2 fw-bold">{run.name}</h6>
+                                  <h6 className="mb-0 me-2 fw-bold">
+                                    {run.name}
+                                  </h6>
                                   <span
                                     className={`badge ${
                                       run.active ? "bg-success" : "bg-secondary"
@@ -463,8 +466,19 @@ const ScheduledRun = ({ tagOptions }) => {
                                 )}
                               </div>
                               <div className="d-flex flex-column gap-1">
+                                <button
+                                  className="btn btn-sm btn-dark"
+                                  key={key}
+                                  onClick={() => setBtnDisplay(!btnDisplay)}
+                                  title="Edit"
+                                  data-bs-target={`#action-btns-${key}`}
+                                  data-bs-toggle="collapse"
+                                >
+                                  {<FaEllipsisV />}
+                                </button>
                                 <div
-                                  className="btn-group-vertical"
+                                  className="btn-group-vertical collapse"
+                                  id={`action-btns-${key}`}
                                   role="group"
                                 >
                                   <button
