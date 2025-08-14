@@ -5,20 +5,14 @@ import com.db.lenstest.config.SpringContext;
 import com.db.lenstest.lensDTO.*;
 import com.db.lenstest.lensDTO.Step;
 import com.db.lenstest.lensRepository.TestRunEntityRepository;
-import io.cucumber.gherkin.GherkinParser;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.GherkinDocument;
+import com.db.lenstest.service.FeatureFilesParser;
 import io.cucumber.messages.types.Tag;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +24,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
 
     TestRun testRun = new TestRun();
     ConcurrentHashMap<String, Feature> featureMap = new ConcurrentHashMap<>();
+    FeatureFilesParser featureFilesParser = new FeatureFilesParser();
 
     private final TestRunEntityRepository testRunEntityRepository = SpringContext.getBean(TestRunEntityRepository.class);
 
@@ -65,7 +60,7 @@ public class CustomCucumberListener implements ConcurrentEventListener {
     }
 
     private void featureRead(TestSourceRead event) {
-        Optional<io.cucumber.messages.types.Feature> container = parseFeature(event);
+        Optional<io.cucumber.messages.types.Feature> container = featureFilesParser.parseFeature(event);
         container.ifPresent(featureCucumber -> {
             final Stream<String> tags = featureCucumber.getTags().stream().map(Tag::getName);
             Feature feature = new Feature();
@@ -193,32 +188,6 @@ public class CustomCucumberListener implements ConcurrentEventListener {
         Feature feature = testRun.getFeatures().get(featureId);
         Scenario scenario = feature.getScenarios().get(scenarioId);
         scenario.getSteps().getLast().getLogs().add(logDTO);
-    }
-
-    private Optional<io.cucumber.messages.types.Feature> parseFeature(final TestSourceRead event) {
-        final GherkinParser parser = GherkinParser.builder()
-                .includePickles(false)
-                .includeSource(false)
-                .build();
-        try {
-            URI uri = Objects.requireNonNull(this.getClass().getClassLoader().getResource(event.getUri().getSchemeSpecificPart())).toURI();
-            final Optional<Envelope> envelope = parser.parse(Paths.get(uri))
-                    .findAny();
-            if (envelope.isEmpty() || envelope.get().getGherkinDocument().isEmpty()) {
-                log.error("No features were found in {}", event.getUri());
-                return Optional.empty();
-            }
-            final GherkinDocument document = envelope.get().getGherkinDocument().get();
-            if (document.getFeature().isEmpty()) {
-                log.error("Feature file {} does not contain a Feature", event.getUri());
-            }
-            return document.getFeature();
-        } catch (final IOException e) {
-            log.error("Failed to load feature file {}", event.getUri(), e);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        return Optional.empty();
     }
 
     public static String readStackTrace(final Throwable e) {

@@ -36,7 +36,7 @@ public class TestOrchestrator {
 //            testNG.addListener(reportListener);
 //            testNG.addListener(reportListener);
 
-            System.setProperty("cucumber.filter.tags", "@" + tag);
+            System.setProperty("cucumber.filter.tags", tag);
             System.setProperty("cucumber.execution.parallel.enabled", "true");
 
             testNG.run();
