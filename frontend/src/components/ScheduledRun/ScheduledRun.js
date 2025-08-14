@@ -469,7 +469,6 @@ const ScheduledRun = ({ tagOptions }) => {
                                 <button
                                   className="btn btn-sm btn-dark"
                                   key={key}
-                                  onClick={() => setBtnDisplay(!btnDisplay)}
                                   title="Edit"
                                   data-bs-target={`#action-btns-${key}`}
                                   data-bs-toggle="collapse"
