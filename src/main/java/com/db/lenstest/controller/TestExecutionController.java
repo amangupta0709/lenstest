@@ -20,6 +20,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/tests")
+@CrossOrigin(origins = "*")
 public class TestExecutionController {
 
     @Autowired

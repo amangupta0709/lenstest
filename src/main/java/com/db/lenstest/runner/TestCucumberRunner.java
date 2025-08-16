@@ -28,9 +28,7 @@ public class TestCucumberRunner extends AbstractTestNGCucumberTests {
     @DataProvider(parallel = true)
     public Object[][] scenarios() {
         Object[][] scenarios = super.scenarios();
-        System.out.println("runner: "+Thread.currentThread().getId());
-        String dynamicTags = (String) TestRunContext.get("filterTag");   //passed from Pipeline
-        //Or add any other sources you want to get the tags from
+        String dynamicTags = (String) TestRunContext.get("filterTag");
 
         if ( dynamicTags != null && !dynamicTags.isEmpty()) return (Arrays.stream(scenarios).filter(scenario -> TagExpressionParser.parse(dynamicTags).evaluate(((PickleWrapper) scenario[0]).getPickle().getTags())).toList()).toArray(new Object[0][0]);
         else return scenarios;

@@ -228,7 +228,7 @@
 						<configuration>
 							<arguments>run build</arguments>
 							<environmentVariables>
-								<CI>true</CI>
+								<CI>false</CI>
 							</environmentVariables>
 						</configuration>
 					</execution>
