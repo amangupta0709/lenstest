@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js/auto";
+import "chart.js/auto";
 import "./RunHistory.css";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -25,7 +25,6 @@ const RunHistory = ({ props, tagOptions }) => {
   const newRunSubmit = async () => {
     try {
       const url = "http://localhost:8080/api/tests/execute";
-      console.log(JSON.stringify(newRun));
       await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

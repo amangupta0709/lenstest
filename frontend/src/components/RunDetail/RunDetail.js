@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js/auto";
+import "chart.js/auto";
 import "./RunDetail.css";
 import parsedDate from "../utils/DateParser";
 import { Link } from "react-router-dom";
 
 const RunDetail = (data) => {
-  console.log("Data", data);
-
   const [showSummary, setShowSummary] = useState(true);
   const [tagOptions, setTagOptions] = useState([]);
   const [selectedFeature, setSelectedFeature] = useState(null);
@@ -58,7 +56,7 @@ const RunDetail = (data) => {
               value={key}
               className="dropdown-item"
               onClick={(e) =>
-                setFilters({ ...filters, tagFilter: e.target.value })
+                handleFilterChange( "tagFilter", e.target.value )
               }
             >
               {key}
@@ -129,53 +127,81 @@ const RunDetail = (data) => {
     );
   }, [data, filters]);
 
-  const handleDownload = () => {
-    const element = document.getElementById("root"); // your component's container
+  // const handleDownload = () => {
+  //   const element = document.getElementById("root");
+    
+  //   if (!element) {
+  //     alert("Snapshot element not found");
+  //     return;
+  //   }
 
-    if (!element) {
-      alert("Snapshot element not found");
-      return;
-    }
+  //   // Inline styles
+  //   const styles = Array.from(document.styleSheets)
+  //     .map((sheet) => {
+  //       try {
+  //         return Array.from(sheet.cssRules)
+  //           .map((rule) => rule.cssText)
+  //           .join("\n");
+  //       } catch {
+  //         return ""; // ignore cross-origin stylesheets
+  //       }
+  //     })
+  //     .join("\n");
 
-    // Inline styles
-    const styles = Array.from(document.styleSheets)
-      .map((sheet) => {
-        try {
-          return Array.from(sheet.cssRules)
-            .map((rule) => rule.cssText)
-            .join("\n");
-        } catch {
-          return ""; // ignore cross-origin stylesheets
-        }
-      })
-      .join("\n");
+  //   const html = `
+  //   <!DOCTYPE html>
+  //   <html lang="en">
+  //   <head>
+  //     <meta charset="UTF-8">
+  //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //     <title>Test Run Report #${data.id}</title>
+  //     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  //     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  //     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  //     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  //     <style>
+  //       ${styles}
+        
+  //       /* Additional styles for standalone HTML 
+  //       body {
+  //         background-color: #1a1a1a;
+  //         color: #ffffff;
+  //       }
+        
+  //       .card {
+  //         background-color: #2d2d2d;
+  //         border: 1px solid #444;
+  //       }
+        
+  //       .navbar-dark {
+  //         background-color: #212529;
+  //       } */
+        
+  //       /* Ensure charts work in standalone 
+  //       canvas {
+  //         max-width: 100%;
+  //         height: auto;
+  //       } */
+  //     </style>
+  //   </head>
+  //   <body>
+  //     <div id="root">
+  //       ${element.innerHTML}
+  //     </div>
+  //   </body>
+  //   </html>
+  //   `;
 
-    const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <title>${document.title}</title>
-      <style>${styles}</style>
-    </head>
-    <body>
-      <div id="root">
-        ${element.innerHTML}
-      </div>
-    </body>
-    </html>
-    `;
+  //   const blob = new Blob([html], { type: "text/html" });
+  //   const url = URL.createObjectURL(blob);
 
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = `test-run-${data.id}-report.html`;
+  //   link.click();
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `run-report.html`;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
+  //   URL.revokeObjectURL(url);
+  // };
 
   return (
     <div className="container d-flex flex-column gap-4 pb-5">
@@ -194,7 +220,7 @@ const RunDetail = (data) => {
             Run #{data.id}
           </h5>
         </div>
-        <div className="col pe-0 d-flex justify-content-end">
+        <div className="col pe-0 d-flex justify-content-end gap-2">
           <button
             type="button"
             className="btn btn-primary btn-sm"
@@ -203,17 +229,16 @@ const RunDetail = (data) => {
             <i className="bi bi-bar-chart-fill me-2"></i>
             {showSummary ? "Hide " : "Show "} Summary
           </button>
-        </div>
-        {/* <div className="col pe-0 d-flex justify-content-end">
-          <button
+          {/* <button
             type="button"
-            className="btn btn-primary btn-sm"
-            onClick={(e) => handleDownload()}
+            className="btn btn-success btn-sm"
+            onClick={handleDownload}
+            title="Download standalone HTML report"
           >
-            <i className="bi bi-bar-chart-fill me-2"></i>
+            <i className="bi bi-download me-2"></i>
             Download
-          </button>
-        </div> */}
+          </button> */}
+        </div>
       </div>
       {showSummary && (
         <div className="test-summary">

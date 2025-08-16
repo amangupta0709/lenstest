@@ -4,7 +4,6 @@ import "./ScenarioDetail.css";
 
 const ScenarioDetail = (scenario) => {
   const divRef = useRef(null);
-  const [stepSelected, setStepSelected] = useState();
   const [initialHeightSet, setInitialHeightSet] = useState(false);
 
   useEffect(() => {
@@ -111,19 +110,22 @@ const ScenarioDetail = (scenario) => {
                       </div>
                     )}
                     <div id={`step-detail-${index}`} className="collapse show">
-                      {step.logs && step.logs.length > 0 && (
-                        <div
-                          className="row step-log ms-0 p-3 mt-3 mb-3"
-                          ref={divRef}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {Object.entries(step.logs)
-                            .filter(([logKey, log]) => log.showReport)
-                            .map(([logKey, log]) => (
-                              <div className="row">{log.value}</div>
-                            ))}
-                        </div>
-                      )}
+                      {step.logs &&
+                        Object.entries(step.logs).filter(
+                          ([logKey, log]) => log.showReport
+                        ).length > 0 && (
+                          <div
+                            className="row step-log ms-0 p-3 mt-3 mb-3"
+                            ref={divRef}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {Object.entries(step.logs)
+                              .filter(([logKey, log]) => log.showReport)
+                              .map(([logKey, log]) => (
+                                <div className="row">{log.value}</div>
+                              ))}
+                          </div>
+                        )}
 
                       {step.error && (
                         <div

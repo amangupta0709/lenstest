@@ -201,7 +201,7 @@
 					<workingDirectory>frontend</workingDirectory>
 				</configuration>
 				<executions>
-					<execution>
+					<!-- <execution>
 						<id>install-node-and-npm</id>
 						<goals>
 							<goal>install-node-and-npm</goal>
@@ -210,7 +210,7 @@
 							<nodeVersion>v18.17.1</nodeVersion>
 							<npmVersion>9.8.1</npmVersion>
 						</configuration>
-					</execution>
+					</execution> -->
 					<execution>
 						<id>npm-install</id>
 						<goals>
@@ -227,6 +227,30 @@
 						</goals>
 						<configuration>
 							<arguments>run build</arguments>
+							<environmentVariables>
+								<CI>true</CI>
+							</environmentVariables>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					<execution>
+						<id>copy-react-build</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>frontend/build</directory>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>

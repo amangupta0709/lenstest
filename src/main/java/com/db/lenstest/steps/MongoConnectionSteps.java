@@ -1,5 +1,6 @@
 package com.db.lenstest.steps;
 
+import com.db.lenstest.listener.StepLogCollector;
 import com.db.lenstest.model.TestDocument;
 import com.db.lenstest.repository.TestDocumentRepository;
 import io.cucumber.java.Before;
@@ -39,6 +40,7 @@ public class MongoConnectionSteps {
             connectionError = e;
             connectionSuccess = false;
         }
+        StepLogCollector.add("aaaaaaa");
     }
 
 

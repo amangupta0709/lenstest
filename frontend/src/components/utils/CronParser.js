@@ -2,7 +2,7 @@ export default function parsedCron(cron) {
   const parts = cron.trim().split(/\s+/);
   if (parts.length !== 6) throw new Error("Invalid Quartz cron expression");
 
-  const [sec, min, hour, dayOfMonth, month, dayOfWeek] = parts;
+  const [, min, hour, dayOfMonth, month, dayOfWeek] = parts;
 
   const monthsMap = ["", "January", "February", "March", "April", "May", "June", 
                      "July", "August", "September", "October", "November", "December"];

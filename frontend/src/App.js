@@ -33,7 +33,6 @@ const App = () => {
     fetch("http://localhost:8080/api/tests/")
       .then((res) => res.json())
       .then((json) => {
-        console.log("Fetched Results:", json);
         setResults(json);
       });
   }, []);
@@ -46,7 +45,6 @@ const App = () => {
 
     eventSource.onmessage = (event) => {
       const update = JSON.parse(event.data);
-      console.log("SSE Update:", update);
 
       // Replace result with matching ID, or add if new
       setResults((prevResults) => {
