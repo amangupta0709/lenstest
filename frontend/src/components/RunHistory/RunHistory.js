@@ -5,36 +5,10 @@ import "./RunHistory.css";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { Link } from "react-router-dom";
-import Select from "react-select";
-import makeAnimated from "react-select/animated";
 import ScheduledRun from "../ScheduledRun/ScheduledRun";
+import NewRun from "../NewRun/NewRun";
 
 const RunHistory = ({ props, tagOptions }) => {
-  const [newRun, setNewRun] = useState({
-    includeTags: [],
-    excludeTags: [],
-  });
-
-  const handleNewRunChange = (key, value) => {
-    setNewRun((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const newRunSubmit = async () => {
-    try {
-      const url = "http://localhost:8080/api/tests/execute";
-      await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newRun),
-      });
-    } catch (error) {
-      console.error("Fetch error:", error);
-    }
-  };
-
   const [filters, setFilters] = useState({
     status: "",
     runType: "",
@@ -164,7 +138,7 @@ const RunHistory = ({ props, tagOptions }) => {
           <div className="col d-flex justify-content-end gap-2">
             <button
               type="button"
-              className="btn btn-outline-primary"
+              className="btn glass-button primary-btn"
               data-bs-toggle="modal"
               data-bs-target="#scheduled-run-modal"
             >
@@ -173,7 +147,7 @@ const RunHistory = ({ props, tagOptions }) => {
             </button>
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn glass-button primary-btn"
               data-bs-toggle="modal"
               data-bs-target="#new-run-modal"
             >
@@ -185,144 +159,131 @@ const RunHistory = ({ props, tagOptions }) => {
 
         <div className="row justify-content-between">
           <div className="col-l d-flex flex-column gap-4">
-            <div className="row card">
-              <div className="accordion">
-                <div className="accordion-item">
-                  <h2 className="accordion-header" id="headingOne">
-                    <button
-                      className="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseOne"
-                      aria-expanded="true"
-                      aria-controls="collapseOne"
-                    >
-                      <i className="bi bi-search me-3"></i>
-                      Filter
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseOne"
-                    className="accordion-collapse collapse"
-                    aria-labelledby="headingOne"
-                    data-bs-parent="#accordionExample"
-                  >
-                    <div className="accordion-body d-flex flex-column gap-3">
-                      <div className="row justify-content-around">
-                        <div className="col-3">Status</div>
-                        <div className="col-6 d-flex flex-row gap-4">
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="inlineRadioOptionStatus"
-                              id="inlineRadioStatus1"
-                              value="FINISHED"
-                              onChange={(e) =>
-                                handleFilterChange("status", e.target.value)
-                              }
-                              checked={filters.status === "FINISHED"}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="inlineRadioStatus1"
-                            >
-                              Finished
-                            </label>
-                          </div>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="inlineRadioOptionStatus"
-                              id="inlineRadioStatus2"
-                              value="FAILED"
-                              onChange={(e) =>
-                                handleFilterChange("status", e.target.value)
-                              }
-                              checked={filters.status === "FAILED"}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="inlineRadioStatus2"
-                            >
-                              Failed
-                            </label>
-                          </div>
-                        </div>
+            <div className="row accordion-custom">
+              <button
+                className="btn glass-button accor-btn"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#accordion-div"
+              >
+                <i className="bi bi-search me-3"></i>
+                Filter
+              </button>
+              <div id="accordion-div" className="collapse accordion-div">
+                <div className="d-flex flex-column gap-3">
+                  <div className="row justify-content-around">
+                    <div className="col-3">Status</div>
+                    <div className="col-6 d-flex flex-row">
+                      <div className="col-4 form-check form-check-inline">
+                        <input
+                          className="form-check-input filter-radio-button"
+                          type="radio"
+                          name="inlineRadioOptionStatus"
+                          id="inlineRadioStatus1"
+                          value="FINISHED"
+                          onChange={(e) =>
+                            handleFilterChange("status", e.target.value)
+                          }
+                          checked={filters.status === "FINISHED"}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="inlineRadioStatus1"
+                        >
+                          Finished
+                        </label>
                       </div>
-                      <div className="row justify-content-around">
-                        <div className="col-3">Run Type</div>
-                        <div className="col-6 d-flex flex-row gap-4">
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="inlineRadioOptionType"
-                              id="inlineRadioType1"
-                              value="SCHEDULED"
-                              onChange={(e) =>
-                                handleFilterChange("runType", e.target.value)
-                              }
-                              checked={filters.runType === "SCHEDULED"}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="inlineRadioType1"
-                            >
-                              Scheduled
-                            </label>
-                          </div>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="inlineRadioOptionType"
-                              id="inlineRadioType2"
-                              value="MANUAL"
-                              onChange={(e) =>
-                                handleFilterChange("runType", e.target.value)
-                              }
-                              checked={filters.runType === "MANUAL"}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="inlineRadioType2"
-                            >
-                              Manual
-                            </label>
-                          </div>
-                        </div>
+                      <div className="col-4 form-check form-check-inline">
+                        <input
+                          className="form-check-input filter-radio-button"
+                          type="radio"
+                          name="inlineRadioOptionStatus"
+                          id="inlineRadioStatus2"
+                          value="FAILED"
+                          onChange={(e) =>
+                            handleFilterChange("status", e.target.value)
+                          }
+                          checked={filters.status === "FAILED"}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="inlineRadioStatus2"
+                        >
+                          Failed
+                        </label>
                       </div>
-                      <div className="row justify-content-around">
-                        <div className="col-3">Date Range</div>
-                        <div className="col-6 filter-datepicker">
-                          <DayPicker
-                            mode="range"
-                            selected={filters.dateRange}
-                            captionLayout="dropdown"
-                            onSelect={(range) =>
-                              handleFilterChange("dateRange", range)
-                            }
-                          />
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="btn btn-secondary filter-reset-button"
-                        onClick={handleReset}
-                      >
-                        Reset
-                      </button>
                     </div>
                   </div>
+                  <div className="row justify-content-around">
+                    <div className="col-3">Run Type</div>
+                    <div className="col-6 d-flex flex-row">
+                      <div className="col-4 form-check form-check-inline">
+                        <input
+                          className="form-check-input filter-radio-button"
+                          type="radio"
+                          name="inlineRadioOptionType"
+                          id="inlineRadioType1"
+                          value="SCHEDULED"
+                          onChange={(e) =>
+                            handleFilterChange("runType", e.target.value)
+                          }
+                          checked={filters.runType === "SCHEDULED"}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="inlineRadioType1"
+                        >
+                          Scheduled
+                        </label>
+                      </div>
+                      <div className="col-4 form-check form-check-inline">
+                        <input
+                          className="form-check-input filter-radio-button"
+                          type="radio"
+                          name="inlineRadioOptionType"
+                          id="inlineRadioType2"
+                          value="MANUAL"
+                          onChange={(e) =>
+                            handleFilterChange("runType", e.target.value)
+                          }
+                          checked={filters.runType === "MANUAL"}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="inlineRadioType2"
+                        >
+                          Manual
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row justify-content-around">
+                    <div className="col-3">Date Range</div>
+                    <div className="col-6 filter-datepicker">
+                      <DayPicker
+                        mode="range"
+                        selected={filters.dateRange}
+                        captionLayout="dropdown"
+                        onSelect={(range) =>
+                          handleFilterChange("dateRange", range)
+                        }
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn glass-button m-3"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </button>
                 </div>
               </div>
             </div>
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
                 <Link to={`/${item.id}`} key={index}>
-                  <div className="row card">
+                  <div className="row card run-history">
                     <div className="card-body ms-1 d-flex flex-column gap-2 pb-0">
                       <div className="run-title">
                         {item.executionStage === "FINISHED" && (
@@ -481,83 +442,7 @@ const RunHistory = ({ props, tagOptions }) => {
           </div>
         </div>
       </div>
-      <div className="modal fade" id="new-run-modal">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">
-                <i className="bi bi-gear-fill me-2"></i>New Run
-              </h5>
-            </div>
-            <div className="modal-body">
-              {/* <input
-                className="form-control"
-                type="text"
-                placeholder="Tag"
-                onChange={(e) => handleNewRunChange("tag", e.target.value)}
-              /> */}
-              <div className="column d-flex flex-column gap-4">
-                <div className="row">
-                  <label className="select-label mb-2 fs-6 fw-bold">
-                    Include Tags
-                  </label>
-                  <Select
-                    isMulti
-                    name="tagOptions"
-                    closeMenuOnSelect={false}
-                    onFocus={false}
-                    components={makeAnimated()}
-                    options={tagOptions}
-                    className="basic-multi-select"
-                    classNamePrefix="select"
-                    onChange={(selected) => {
-                      handleNewRunChange(
-                        "includeTags",
-                        selected?.map((opt) => opt.value) || []
-                      );
-                    }}
-                  />
-                </div>
-
-                <div className="row">
-                  <label className="select-label mb-2 fs-6 fw-bold">
-                    Exclude Tags
-                  </label>
-                  <Select
-                    isMulti
-                    name="excludeTags"
-                    closeMenuOnSelect={false}
-                    components={makeAnimated()}
-                    options={tagOptions}
-                    className="basic-multi-select"
-                    classNamePrefix="select"
-                    onChange={(selected) => {
-                      handleNewRunChange(
-                        "excludeTags",
-                        selected?.map((opt) => opt.value) || []
-                      );
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-                onClick={newRunSubmit}
-                disabled={
-                  newRun.includeTags.length === 0 &&
-                  newRun.excludeTags.length === 0
-                }
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NewRun tagOptions={tagOptions} />
       <ScheduledRun tagOptions={tagOptions} />
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
+import Select from "react-select";
 import "chart.js/auto";
 import "./RunDetail.css";
 import parsedDate from "../utils/DateParser";
@@ -46,26 +47,20 @@ const RunDetail = (data) => {
     },
   };
 
-  // Handle Tags in dropdown
   useEffect(() => {
     if (data && data.tagStats) {
-      setTagOptions(
-        Object.keys(data.tagStats).map((key) => (
-          <li>
-            <button
-              value={key}
-              className="dropdown-item"
-              onClick={(e) =>
-                handleFilterChange( "tagFilter", e.target.value )
-              }
-            >
-              {key}
-            </button>
-          </li>
-        ))
-      );
+      const options = Object.keys(data.tagStats).map((key) => ({
+        value: key,
+        label: key,
+      }));
+      setTagOptions(options);
     }
   }, [data]);
+
+  const handleTagSelectChange = (selectedOption) => {
+    const value = selectedOption ? selectedOption.value : "";
+    handleFilterChange("tagFilter", value);
+  };
 
   // Handle filter input changes - updates filters and list dynamically
   const handleFilterChange = (key, value) => {
@@ -129,7 +124,7 @@ const RunDetail = (data) => {
 
   // const handleDownload = () => {
   //   const element = document.getElementById("root");
-    
+
   //   if (!element) {
   //     alert("Snapshot element not found");
   //     return;
@@ -161,23 +156,23 @@ const RunDetail = (data) => {
   //     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   //     <style>
   //       ${styles}
-        
-  //       /* Additional styles for standalone HTML 
+
+  //       /* Additional styles for standalone HTML
   //       body {
   //         background-color: #1a1a1a;
   //         color: #ffffff;
   //       }
-        
+
   //       .card {
   //         background-color: #2d2d2d;
   //         border: 1px solid #444;
   //       }
-        
+
   //       .navbar-dark {
   //         background-color: #212529;
   //       } */
-        
-  //       /* Ensure charts work in standalone 
+
+  //       /* Ensure charts work in standalone
   //       canvas {
   //         max-width: 100%;
   //         height: auto;
@@ -223,7 +218,7 @@ const RunDetail = (data) => {
         <div className="col pe-0 d-flex justify-content-end gap-2">
           <button
             type="button"
-            className="btn btn-primary btn-sm"
+            className="btn glass-button btn-sm"
             onClick={(e) => setShowSummary(!showSummary)}
           >
             <i className="bi bi-bar-chart-fill me-2"></i>
@@ -380,133 +375,106 @@ const RunDetail = (data) => {
       )}
       <div className="test-details">
         <div className="d-flex flex-column gap-4">
-          <div className="row">
-            <div className="card">
-              <div className="accordion">
-                <div className="accordion-item">
-                  <h2 className="accordion-header" id="headingOne">
-                    <button
-                      className="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseOne"
-                      aria-expanded="true"
-                      aria-controls="collapseOne"
-                    >
-                      <i className="bi bi-search me-3"></i>
-                      Filter
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseOne"
-                    className="accordion-collapse collapse"
-                    aria-labelledby="headingOne"
-                    data-bs-parent="#accordionExample"
-                  >
-                    <div className="accordion-body d-flex flex-column gap-4">
-                      <div className="row justify-content-center">
-                        <div className="col-3">Features</div>
-                        <div className="col-3 d-flex flex-row justify-content-between">
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="features"
-                              value="PASSED"
-                              onChange={(e) =>
-                                handleFilterChange(
-                                  "featureFilter",
-                                  e.target.value
-                                )
-                              }
-                              checked={filters.featureFilter === "PASSED"}
-                            />
-                            <label className="form-check-label">Passed</label>
-                          </div>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="features"
-                              value="FAILED"
-                              onChange={(e) =>
-                                handleFilterChange(
-                                  "featureFilter",
-                                  e.target.value
-                                )
-                              }
-                              checked={filters.featureFilter === "FAILED"}
-                            />
-                            <label className="form-check-label">Failed</label>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row justify-content-center">
-                        <div className="col-3">Scenarios</div>
-                        <div className="col-3 d-flex flex-row justify-content-between">
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="scenarios"
-                              value="PASSED"
-                              onChange={(e) =>
-                                handleFilterChange(
-                                  "scenarioFilter",
-                                  e.target.value
-                                )
-                              }
-                              checked={filters.scenarioFilter === "PASSED"}
-                            />
-                            <label className="form-check-label">Passed</label>
-                          </div>
-                          <div className="form-check form-check-inline">
-                            <input
-                              className="form-check-input filter-radio-button"
-                              type="radio"
-                              name="scenarios"
-                              value="FAILED"
-                              onChange={(e) =>
-                                handleFilterChange(
-                                  "scenarioFilter",
-                                  e.target.value
-                                )
-                              }
-                              checked={filters.scenarioFilter === "FAILED"}
-                            />
-                            <label className="form-check-label">Failed</label>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row justify-content-center">
-                        <div className="col-3">Tags</div>
-                        <div className="col-3 d-flex flex-column justify-content-center">
-                          <div class="dropdown">
-                            <button
-                              class="btn btn-primary btn-sm dropdown-toggle"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                            >
-                              {filters.tagFilter
-                                ? filters.tagFilter
-                                : "Select Tag"}
-                            </button>
-                            <ul class="dropdown-menu">{tagOptions}</ul>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row justify-content-center">
-                        <button
-                          type="button"
-                          className="btn btn-secondary filter-reset-button"
-                          onClick={handleReset}
-                        >
-                          Reset
-                        </button>
-                      </div>
+          <div className="row accordion-custom">
+            <button
+              className="btn glass-button accor-btn"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#accordion-div"
+            >
+              <i className="bi bi-search me-3"></i>
+              Filter
+            </button>
+            <div id="accordion-div" className="collapse accordion-div">
+              <div className="d-flex flex-column gap-4">
+                <div className="row justify-content-center">
+                  <div className="col-3">Features</div>
+                  <div className="col-3 d-flex flex-row justify-content-between">
+                    <div className="form-check form-check-inline">
+                      <input
+                        className="form-check-input filter-radio-button"
+                        type="radio"
+                        name="features"
+                        value="PASSED"
+                        onChange={(e) =>
+                          handleFilterChange("featureFilter", e.target.value)
+                        }
+                        checked={filters.featureFilter === "PASSED"}
+                      />
+                      <label className="form-check-label">Passed</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input
+                        className="form-check-input filter-radio-button"
+                        type="radio"
+                        name="features"
+                        value="FAILED"
+                        onChange={(e) =>
+                          handleFilterChange("featureFilter", e.target.value)
+                        }
+                        checked={filters.featureFilter === "FAILED"}
+                      />
+                      <label className="form-check-label">Failed</label>
                     </div>
                   </div>
                 </div>
+                <div className="row justify-content-center">
+                  <div className="col-3">Scenarios</div>
+                  <div className="col-3 d-flex flex-row justify-content-between">
+                    <div className="form-check form-check-inline">
+                      <input
+                        className="form-check-input filter-radio-button"
+                        type="radio"
+                        name="scenarios"
+                        value="PASSED"
+                        onChange={(e) =>
+                          handleFilterChange("scenarioFilter", e.target.value)
+                        }
+                        checked={filters.scenarioFilter === "PASSED"}
+                      />
+                      <label className="form-check-label">Passed</label>
+                    </div>
+                    <div className="form-check form-check-inline">
+                      <input
+                        className="form-check-input filter-radio-button"
+                        type="radio"
+                        name="scenarios"
+                        value="FAILED"
+                        onChange={(e) =>
+                          handleFilterChange("scenarioFilter", e.target.value)
+                        }
+                        checked={filters.scenarioFilter === "FAILED"}
+                      />
+                      <label className="form-check-label">Failed</label>
+                    </div>
+                  </div>
+                </div>
+                <div className="row justify-content-center">
+                  <div className="col-3">Tags</div>
+                  <div className="col-3 d-flex flex-column justify-content-center">
+                    <Select
+                      name="tagFilter"
+                      value={
+                        tagOptions.find(
+                          (option) => option.value === filters.tagFilter
+                        ) || null
+                      }
+                      options={tagOptions}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                      onChange={handleTagSelectChange}
+                      placeholder="Select Tag"
+                      menuPortalTarget={document.body}
+                    />
+                  </div>
+                </div>
+                  <button
+                    type="button"
+                    className="btn glass-button m-3"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </button>
               </div>
             </div>
           </div>

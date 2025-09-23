@@ -8,7 +8,8 @@ const Nav = () => {
         <div className="row">
           <nav className="navbar">
             <Link className="navbar name" to="/">
-              <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="logo" height={70}/> LensTest
+              <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="logo" height={50} style={{ marginRight: "10px"}} />  
+              LensTest
             </Link>
           </nav>
         </div>

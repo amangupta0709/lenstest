@@ -58,7 +58,7 @@ const ScheduledRun = ({ tagOptions }) => {
     scheduleType: "daily", // daily, weekly, custom
     time: "09:00",
     dayOfWeek: "1", // 1=Monday, 7=Sunday
-    cronExpression: "",
+    cronExpression: "0 0 9 * * ?",
   });
 
   const [scheduledRuns, setScheduledRuns] = useState([]);
@@ -99,14 +99,47 @@ const ScheduledRun = ({ tagOptions }) => {
     }
   };
 
+  const handleCollapseForm = (collapse) => {
+    const collapseForm = document.getElementById("accordion-box");
+    if (collapseForm && collapse) {
+      collapseForm.classList.remove("show");
+    } else if (collapseForm && !collapse) {
+      collapseForm.classList.add("show");
+    }
+  };
+
+  const resetScheduledRunForm = () => {
+    setScheduledRun({
+      name: "",
+      includeTags: [],
+      excludeTags: [],
+      scheduleType: "daily",
+      time: "09:00",
+      dayOfWeek: "1",
+      cronExpression: "0 0 9 * * ?",
+    });
+    setIsEditing(false);
+    setEditingId(null);
+  };
+
   // Load scheduled runs when modal opens
   useEffect(() => {
     const modalElement = document.getElementById("scheduled-run-modal");
+    const listener = () => handleCollapseForm(true);
     if (modalElement) {
-      modalElement.addEventListener("show.bs.modal", loadScheduledRuns);
-      return () =>
-        modalElement.removeEventListener("show.bs.modal", loadScheduledRuns);
+      modalElement.addEventListener("shown.bs.modal", loadScheduledRuns);
+      modalElement.addEventListener("hidden.bs.modal", listener);
+      modalElement.addEventListener("hidden.bs.modal", resetScheduledRunForm);
     }
+
+    return () => {
+      modalElement.removeEventListener("shown.bs.modal", loadScheduledRuns);
+      modalElement.removeEventListener("hidden.bs.modal", listener);
+      modalElement.removeEventListener(
+        "hidden.bs.modal",
+        resetScheduledRunForm
+      );
+    };
   }, []);
 
   const scheduledRunSubmit = async () => {
@@ -114,6 +147,8 @@ const ScheduledRun = ({ tagOptions }) => {
       const cronExpression = generateCronExpression();
       const payload = {
         ...scheduledRun,
+        includeTags: scheduledRun.includeTags.map((tag) => tag.value),
+        excludeTags: scheduledRun.excludeTags.map((tag) => tag.value),
         cronExpression,
       };
 
@@ -138,32 +173,21 @@ const ScheduledRun = ({ tagOptions }) => {
     }
   };
 
-  const resetScheduledRunForm = () => {
-    setScheduledRun({
-      name: "",
-      includeTags: [],
-      excludeTags: [],
-      scheduleType: "daily",
-      time: "09:00",
-      dayOfWeek: "1",
-      cronExpression: "",
-    });
-    setIsEditing(false);
-    setEditingId(null);
-  };
-
   const editScheduledRun = (run) => {
     setScheduledRun({
       name: run.name,
-      includeTags: run.includeTags || [],
-      excludeTags: run.excludeTags || [],
-      scheduleType: "custom", // For existing runs, show as custom
+      includeTags:
+        run.includeTags.map((tag) => ({ value: tag, label: tag })) || [],
+      excludeTags:
+        run.excludeTags.map((tag) => ({ value: tag, label: tag })) || [],
+      scheduleType: "custom",
       time: "09:00",
       dayOfWeek: "1",
       cronExpression: run.cronExpression,
     });
     setIsEditing(true);
     setEditingId(run.id);
+    handleCollapseForm(false);
   };
 
   const deleteScheduledRun = async (id) => {
@@ -204,18 +228,18 @@ const ScheduledRun = ({ tagOptions }) => {
           </div>
           <div className="modal-body">
             <div className="row">
-              {/* Left Column - Create/Edit Form */}
-              <div className="col-md-5">
-                <div className="card scheduled-run-card">
-                  <div className="card-header">
-                    <h6 className="mb-0">
-                      <i className="bi bi-plus-circle me-2"></i>
-                      {isEditing ? "Edit Schedule" : "Create New Schedule"}
-                    </h6>
-                  </div>
-                  <div className="card-body">
+              <div className="col d-flex flex-column gap-3">
+                <div className="accordion-custom">
+                  <button
+                    type="button"
+                    className="btn glass-button accor-btn"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#accordion-box"
+                  >
+                    {isEditing ? "Edit Schedule" : "Create New Schedule"}
+                  </button>
+                  <div id="accordion-box" className="collapse accordion-box">
                     <div className="d-flex flex-column gap-3">
-                      {/* Schedule Name */}
                       <div>
                         <label className="form-label fw-bold">
                           Schedule Name
@@ -223,165 +247,170 @@ const ScheduledRun = ({ tagOptions }) => {
                         <input
                           className="form-control"
                           type="text"
-                          placeholder="Enter schedule name"
+                          placeholder="Enter Schedule Name"
                           value={scheduledRun.name}
                           onChange={(e) =>
                             handleScheduledRunChange("name", e.target.value)
                           }
                         />
                       </div>
-
-                      {/* Include Tags */}
-                      <div>
-                        <label className="form-label fw-bold">
-                          Include Tags
-                        </label>
-                        <Select
-                          isMulti
-                          name="includeTags"
-                          closeMenuOnSelect={false}
-                          components={makeAnimated()}
-                          options={tagOptions}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          onChange={(selected) => {
-                            handleScheduledRunChange(
-                              "includeTags",
-                              selected?.map((opt) => opt.value) || []
-                            );
-                          }}
-                        />
-                      </div>
-
-                      {/* Exclude Tags */}
-                      <div>
-                        <label className="form-label fw-bold">
-                          Exclude Tags
-                        </label>
-                        <Select
-                          isMulti
-                          name="excludeTags"
-                          closeMenuOnSelect={false}
-                          components={makeAnimated()}
-                          options={tagOptions}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          onChange={(selected) => {
-                            handleScheduledRunChange(
-                              "excludeTags",
-                              selected?.map((opt) => opt.value) || []
-                            );
-                          }}
-                        />
-                      </div>
-
-                      {/* Schedule Type */}
-                      <div>
-                        <label className="form-label fw-bold">
-                          Schedule Type
-                        </label>
-                        <Select
-                          name="scheduleType"
-                          options={scheduleTypes}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          onChange={(selected) => {
-                            handleScheduledRunChange(
-                              "scheduleType",
-                              selected?.value || ""
-                            );
-                          }}
-                        />
-                      </div>
-
-                      {/* Time Input */}
-                      {scheduledRun.scheduleType !== "custom" && (
-                        <div>
-                          <label className="form-label fw-bold">Time</label>
-                          <input
-                            className="form-control"
-                            type="time"
-                            value={scheduledRun.time}
-                            onChange={(e) =>
-                              handleScheduledRunChange("time", e.target.value)
-                            }
-                          />
-                          {/* <TimePicker value={scheduledRun.time} onChange={(selected) => {
-                            handleScheduledRunChange(
-                              "time",
-                              selected?.value || ""
-                            );
-                          }} /> */}
-                        </div>
-                      )}
-
-                      {/* Day of Week for Weekly */}
-                      {scheduledRun.scheduleType === "weekly" && (
-                        <div>
+                      <div className="d-flex flex-row gap-4">
+                        <div className="col">
                           <label className="form-label fw-bold">
-                            Day of Week
+                            Include Tags
+                          </label>
+                          <Select
+                            isMulti
+                            name="includeTags"
+                            closeMenuOnSelect={false}
+                            components={makeAnimated()}
+                            options={tagOptions}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            value={scheduledRun.includeTags}
+                            onChange={(selected) => {
+                              handleScheduledRunChange(
+                                "includeTags",
+                                selected || []
+                              );
+                            }}
+                          />
+                        </div>
+                        <div className="col">
+                          <label className="form-label fw-bold">
+                            Exclude Tags
+                          </label>
+                          <Select
+                            isMulti
+                            name="excludeTags"
+                            closeMenuOnSelect={false}
+                            components={makeAnimated()}
+                            options={tagOptions}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            value={scheduledRun.excludeTags}
+                            onChange={(selected) => {
+                              handleScheduledRunChange(
+                                "excludeTags",
+                                selected || []
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="d-flex flex-row gap-4">
+                        <div className="col">
+                          <label className="form-label fw-bold">
+                            Schedule Type
                           </label>
                           <Select
                             name="scheduleType"
-                            options={daysOfWeek}
+                            options={scheduleTypes}
+                            defaultValue={scheduleTypes[0]}
                             className="basic-multi-select"
                             classNamePrefix="select"
                             onChange={(selected) => {
                               handleScheduledRunChange(
-                                "dayOfWeek",
+                                "scheduleType",
                                 selected?.value || ""
                               );
                             }}
                           />
                         </div>
-                      )}
 
-                      {/* Custom Cron Expression */}
-                      {scheduledRun.scheduleType === "custom" && (
-                        <div>
-                          <label className="form-label fw-bold">
-                            Cron Expression
-                          </label>
-                          <input
-                            className="form-control"
-                            type="text"
-                            placeholder="0 0 9 * * ?"
-                            value={scheduledRun.cronExpression}
-                            onChange={(e) =>
-                              handleScheduledRunChange(
-                                "cronExpression",
-                                e.target.value
-                              )
+                        {scheduledRun.scheduleType !== "custom" && (
+                          <div className="col">
+                            <label className="form-label fw-bold">Time</label>
+                            <input
+                              className="form-control"
+                              type="time"
+                              value={scheduledRun.time}
+                              onChange={(e) =>
+                                handleScheduledRunChange("time", e.target.value)
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {scheduledRun.scheduleType === "weekly" && (
+                          <div className="col">
+                            <label className="form-label fw-bold">
+                              Day of Week
+                            </label>
+                            <Select
+                              name="scheduleType"
+                              options={daysOfWeek}
+                              defaultValue={daysOfWeek[0]}
+                              className="basic-multi-select"
+                              classNamePrefix="select"
+                              onChange={(selected) => {
+                                handleScheduledRunChange(
+                                  "dayOfWeek",
+                                  selected?.value || ""
+                                );
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        {scheduledRun.scheduleType === "custom" && (
+                          <div className="col">
+                            <label className="form-label fw-bold">
+                              Cron Expression
+                            </label>
+                            <input
+                              className="form-control"
+                              type="text"
+                              placeholder="0 0 9 * * ?"
+                              value={scheduledRun.cronExpression}
+                              onChange={(e) =>
+                                handleScheduledRunChange(
+                                  "cronExpression",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="d-flex gap-4">
+                        {isEditing ? (
+                          <button
+                            type="button"
+                            className="btn glass-button success-btn w-100"
+                            onClick={scheduledRunSubmit}
+                            disabled={
+                              !scheduledRun.name ||
+                              (scheduledRun.includeTags.length === 0 &&
+                                scheduledRun.excludeTags.length === 0) ||
+                              (scheduledRun.scheduleType === "custom" &&
+                                !scheduledRun.cronExpression)
                             }
-                          />
-                        </div>
-                      )}
+                          >
+                            Update
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn glass-button primary-btn w-100"
+                            onClick={scheduledRunSubmit}
+                            disabled={
+                              !scheduledRun.name ||
+                              (scheduledRun.includeTags.length === 0 &&
+                                scheduledRun.excludeTags.length === 0) ||
+                              (scheduledRun.scheduleType === "custom" &&
+                                !scheduledRun.cronExpression)
+                            }
+                          >
+                            Create
+                          </button>
+                        )}
 
-                      {/* Buttons */}
-                      <div className="d-flex gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-primary w-100"
-                          onClick={scheduledRunSubmit}
-                          disabled={
-                            !scheduledRun.name ||
-                            (scheduledRun.includeTags.length === 0 &&
-                              scheduledRun.excludeTags.length === 0) ||
-                            (scheduledRun.scheduleType === "custom" &&
-                              !scheduledRun.cronExpression)
-                          }
-                        >
-                          <i
-                            className={`bi ${
-                              isEditing ? "bi-check-lg" : "bi-plus-lg"
-                            } me-1`}
-                          ></i>
-                          {isEditing ? "Update" : "Create"}
-                        </button>
                         {isEditing && (
                           <button
                             type="button"
-                            className="btn btn-secondary w-100"
+                            className="btn glass-button delete-btn w-100"
                             onClick={resetScheduledRunForm}
                           >
                             Cancel
@@ -391,106 +420,60 @@ const ScheduledRun = ({ tagOptions }) => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Right Column - Existing Scheduled Runs */}
-              <div className="col-md-7">
-                <div className="card scheduled-run-card">
-                  <div className="card-header d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0">
-                      <i className="bi bi-list-ul me-2"></i>
-                      Existing Schedules ({scheduledRuns.length})
-                    </h6>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={loadScheduledRuns}
-                    >
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </button>
-                  </div>
-                  <div
-                    className="card-body"
-                    style={{ maxHeight: "450px", overflowY: "auto" }}
+                <div className="d-flex justify-content-between align-items-center">
+                  <h6 className="mb-0">
+                    <i className="bi bi-list-ul me-2"></i>
+                    Existing Schedules ({scheduledRuns.length})
+                  </h6>
+                  <button
+                    type="button"
+                    className="btn glass-button primary-btn btn-sm"
+                    onClick={loadScheduledRuns}
                   >
-                    {scheduledRuns.length === 0 ? (
-                      <div className="text-center p-4 text-muted">
-                        <i className="bi bi-calendar-x fs-1"></i>
-                        <p className="mt-2">No scheduled runs found</p>
-                      </div>
-                    ) : (
-                      <div className="col d-flex flex-column gap-3">
-                        {scheduledRuns.map((run, key) => (
-                          <div key={run.id} className="row">
-                            <div className="d-flex justify-content-between align-items-start">
-                              <div className="flex-grow-1">
-                                <div className="d-flex align-items-center mb-2">
-                                  <h6 className="mb-0 me-2 fw-bold">
-                                    {run.name}
-                                  </h6>
-                                  <span
-                                    className={`badge ${
-                                      run.active ? "bg-success" : "bg-secondary"
-                                    }`}
-                                  >
-                                    {run.active ? "Active" : "Disabled"}
-                                  </span>
-                                </div>
-                                <p className="mb-0 small text-muted">
-                                  <i className="bi bi-clock me-1"></i>
-                                  {parsedCron(run.cronExpression)}
-                                </p>
-                                {run.includeTags &&
-                                  run.includeTags.length > 0 && (
-                                    <p className="mb-1 small">
-                                      <span className="fw-bold text-success">
-                                        Include:
-                                      </span>{" "}
-                                      {run.includeTags.join(", ")}
-                                    </p>
-                                  )}
-                                {run.excludeTags &&
-                                  run.excludeTags.length > 0 && (
-                                    <p className="mb-1 small">
-                                      <span className="fw-bold text-danger">
-                                        Exclude:
-                                      </span>{" "}
-                                      {run.excludeTags.join(", ")}
-                                    </p>
-                                  )}
-                                {run.lastRunAt && (
-                                  <p className="mb-0 small text-muted">
-                                    Last run:{" "}
-                                    {new Date(run.lastRunAt).toLocaleString()}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="d-flex flex-column gap-1">
-                                <button
-                                  className="btn btn-sm btn-dark"
-                                  key={key}
-                                  title="Edit"
-                                  data-bs-target={`#action-btns-${key}`}
-                                  data-bs-toggle="collapse"
+                    <i className="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+                <div className="schedule-runs d-flex flex-column gap-4">
+                  {scheduledRuns.map((run, key) => (
+                    <div key={run.id} className="card scheduled-run-card">
+                      <div className="card-body ms-1 d-flex flex-column gap-2 pb-0">
+                        {scheduledRuns.length === 0 ? (
+                          <div className="text-center p-4 text-muted">
+                            <i className="bi bi-calendar-x fs-1"></i>
+                            <p className="mt-2">No scheduled runs found</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="schedule-title d-flex justify-content-between">
+                              <div className="d-flex align-items-center mb-1">
+                                <h6 className="fw-bold mb-0 me-2">
+                                  {run.name}
+                                </h6>
+                                <span
+                                  className={`badge ${
+                                    run.active ? "bg-success" : "bg-secondary"
+                                  }`}
                                 >
-                                  {<FaEllipsisV />}
-                                </button>
+                                  {run.active ? "Active" : "Disabled"}
+                                </span>
+                              </div>
+                              <div className="d-flex gap-1 action-buttons">
                                 <div
-                                  className="btn-group-vertical collapse"
+                                  className="collapse"
                                   id={`action-btns-${key}`}
                                   role="group"
                                 >
                                   <button
-                                    className="btn btn-sm btn-outline-primary"
+                                    className="btn btn-sm glass-button primary-btn-dark me-1"
                                     onClick={() => editScheduledRun(run)}
                                     title="Edit"
                                   >
                                     <i className="bi bi-pencil"></i>
                                   </button>
                                   <button
-                                    className={`btn btn-sm btn-outline-${
+                                    className={`btn btn-sm glass-button ${
                                       run.active ? "warning" : "success"
-                                    }`}
+                                    }-btn-dark me-1`}
                                     onClick={() =>
                                       toggleScheduledRun(run.id, run.active)
                                     }
@@ -503,20 +486,75 @@ const ScheduledRun = ({ tagOptions }) => {
                                     ></i>
                                   </button>
                                   <button
-                                    className="btn btn-sm btn-outline-danger"
+                                    className="btn btn-sm glass-button delete-btn-dark"
                                     onClick={() => deleteScheduledRun(run.id)}
                                     title="Delete"
                                   >
                                     <i className="bi bi-trash"></i>
                                   </button>
                                 </div>
+                                <button
+                                  className="btn btn-sm glass-button"
+                                  key={key}
+                                  title="Toggle Actions"
+                                  data-bs-target={`#action-btns-${key}`}
+                                  data-bs-toggle="collapse"
+                                  aria-expanded="false"
+                                  aria-controls={`action-btns-${key}`}
+                                >
+                                  <FaEllipsisV />
+                                </button>
                               </div>
                             </div>
+                            <div className="schedule-info">
+                              <p className="mb-0 small text-muted">
+                                <i className="bi bi-clock me-1"></i>
+                                {parsedCron(run.cronExpression)}
+                              </p>
+                              {run.includeTags &&
+                                run.includeTags.length > 0 && (
+                                  <p
+                                    className={`${
+                                      run.lastRunAt ||
+                                      (run.excludeTags &&
+                                        run.excludeTags.length > 0)
+                                        ? "mb-0"
+                                        : ""
+                                    } small`}
+                                  >
+                                    <span className="fw-bold text-success">
+                                      Include:
+                                    </span>{" "}
+                                    {run.includeTags.join(", ")}
+                                  </p>
+                                )}
+
+                              {run.excludeTags &&
+                                run.excludeTags.length > 0 && (
+                                  <p
+                                    className={`${
+                                      run.lastRunAt ? "mb-0" : ""
+                                    } small`}
+                                  >
+                                    <span className="fw-bold text-danger">
+                                      Exclude:
+                                    </span>{" "}
+                                    {run.excludeTags.join(", ")}
+                                  </p>
+                                )}
+
+                              {run.lastRunAt && (
+                                <p className="small text-muted">
+                                  Last run:{" "}
+                                  {new Date(run.lastRunAt).toLocaleString()}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -524,7 +562,7 @@ const ScheduledRun = ({ tagOptions }) => {
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn glass-button"
               data-bs-dismiss="modal"
               onClick={resetScheduledRunForm}
             >
