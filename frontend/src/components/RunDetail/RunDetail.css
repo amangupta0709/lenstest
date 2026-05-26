@@ -10,8 +10,8 @@
   font-size: 13px !important;
 }
 
-.test-details .filter-reset-button {
-  width: 50% !important;
+.warning-text {
+  color: #bdbcbc  !important;
 }
 
 .dropdown .btn {
@@ -64,4 +64,3 @@
 .btn-success:focus {
   box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.5) !important;
 } */
-

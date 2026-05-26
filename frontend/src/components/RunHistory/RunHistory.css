@@ -1,11 +1,3 @@
-.col-l {
-  width: 70% !important;
-}
-
-.col-s {
-  width: 25% !important;
-}
-
 .run-title,
 .run-filter-tag {
   color: rgb(214, 214, 214) !important;
@@ -15,9 +7,17 @@
   color: #8b8b8b;
 }
 
+.run-history .card-footer {
+  border: none !important;
+}
+
 .run-summary-card {
-  background-color: #151515 !important;
-  border-radius: 15px !important;
+  backdrop-filter: blur(25px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(115%) !important;
+  background-color: rgba(61, 65, 69, 0.1) !important;
+  border-radius: 25px !important;
+  box-shadow: -6px 8px 20px #0b0505 !important;
+  border: 1px solid rgba(255, 255, 255, 0.125) !important;
   color: rgb(214, 214, 214) !important;
   box-sizing: border-box !important;
 }
@@ -53,6 +53,3 @@
   --rdp-dropdown-gap: 1.5rem;
 }
 
-.select-label {
-  color: rgb(214, 214, 214);
-}
